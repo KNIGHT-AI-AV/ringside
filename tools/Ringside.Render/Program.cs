@@ -38,6 +38,7 @@ static class Program
 
         if (what is "all" or "stills") Stills();
         if (what is "all" or "frames") Frames();
+        if (what is "all" or "stills") Social();
         Console.WriteLine("rendered to " + _out);
         return 0;
     }
@@ -194,11 +195,24 @@ static class Program
         var dir = Path.Combine(_out, "frames");
         Directory.CreateDirectory(dir);
         int n = 0;
-        void Frame(Control c) => Capture(Desk(new Border { Width = 560, Height = 300, Child = Center(c) }), 1.5, Path.Combine(dir, $"f{n++:000}.png"));
+        string caption = "";
+        void Frame(Control c)
+        {
+            var label = new TextBlock
+            {
+                Text = caption, FontSize = 15, FontWeight = FontWeight.Medium, Foreground = Brand.Fg2Brush,
+                HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 14),
+            };
+            var scaled = new LayoutTransformControl { LayoutTransform = new ScaleTransform(1.2, 1.2), Child = c, ClipToBounds = false };
+            var stage = new Grid { Width = 600, Height = 330, RowDefinitions = new RowDefinitions("*,Auto"), Children = { Center(scaled), label } };
+            Grid.SetRow(label, 1);
+            Capture(Desk(stage), 1.5, Path.Combine(dir, $"f{n++:000}.png"));
+        }
         static Control Center(Control c) { c.HorizontalAlignment = HorizontalAlignment.Center; c.VerticalAlignment = VerticalAlignment.Center; return c; }
         static double Ease(double t) => 1 - Math.Pow(1 - t, 3);
 
         // 1. Card: usage climbs from nothing.
+        caption = "Your Claude and Codex limits, always in view";
         for (int i = 0; i <= 12; i++)
         {
             double t = Ease(i / 12.0);
@@ -206,18 +220,19 @@ static class Program
         }
         Hold(Frame, () => Widget(Look(), Reading.Sample(Now)), 8);
 
-        // 2. Flip to "left": the same limits drain like a tank.
+        // 2. Flip to "left": the same limits, draining like a tank.
+        caption = "Fill up, or drain like a tank";
         for (int i = 0; i <= 10; i++)
         {
             double t = Ease(i / 10.0);
             // The ring eases from the used reading (42) to the left reading (58).
-            var s = Look(x => x.Fill = FillMode.Left);
-            Frame(Widget(s, Reading.Sample(Now, claude: 100 - (58 + (42 - 58) * (1 - t)), codex: 100 - (82 + (18 - 82) * (1 - t)),
+            Frame(Widget(Look(x => x.Fill = FillMode.Left), Reading.Sample(Now, claude: 100 - (58 + (42 - 58) * (1 - t)), codex: 100 - (82 + (18 - 82) * (1 - t)),
                 claudeWeek: 100 - (69 + (31 - 69) * (1 - t)), codexWeek: 100 - (88 + (12 - 88) * (1 - t)))));
         }
         Hold(Frame, () => Widget(Look(x => x.Fill = FillMode.Left), Reading.Sample(Now)), 8);
 
         // 3. Views: pill, then the orb.
+        caption = "Three views: card, pill and orb";
         Hold(Frame, () => Widget(Look(x => x.View = ViewKind.Pill), Reading.Sample(Now)), 8);
         for (int i = 0; i <= 10; i++)
         {
@@ -227,19 +242,66 @@ static class Program
         Hold(Frame, () => Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now)), 6);
 
         // 4. Colors.
+        caption = "Your colors";
         foreach (var (c1, c2) in new[] { ("#8B7CF6", "#4EA8F5"), ("#EF5D8C", "#E2B53C"), ("#4EA8F5", "#8CCB45") })
             Hold(Frame, () => Widget(Look(x => { x.View = ViewKind.Orb; x.ClaudeColor = c1; x.CodexColor = c2; }), Reading.Sample(Now)), 5);
 
         // 5. Split apart, then join.
+        caption = "Split them apart, snap them together";
         for (int i = 0; i <= 8; i++)
         {
-            double gap = 140 * Ease(i / 8.0);
+            double gap = 120 * Ease(i / 8.0);
             Frame(Row(Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now), "Claude"), new Border { Width = gap }, Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now), "Codex")));
         }
-        Hold(Frame, () => Row(Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now), "Claude"), new Border { Width = 140 }, Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now), "Codex")), 6);
+        Hold(Frame, () => Row(Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now), "Claude"), new Border { Width = 120 }, Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now), "Codex")), 6);
         Hold(Frame, () => Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now)), 6);
-        Hold(Frame, () => Widget(Look(), Reading.Sample(Now)), 6);
+
+        // 6. The forecast.
+        caption = "It warns you before you run out";
+        Hold(Frame, () => Widget(Look(), Reading.Sample(Now, claude: 81, claudeRunsOut: Now.AddMinutes(52))), 10);
         Console.WriteLine($"{n} frames in {dir}");
+    }
+
+    static Control WithAlign(Control c) { c.HorizontalAlignment = HorizontalAlignment.Left; return c; }
+
+    /// <summary>GitHub's social preview, 1280x640, drawn from the real controls.</summary>
+    static void Social()
+    {
+        var r = Reading.Sample(Now);
+        var left = new StackPanel
+        {
+            VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(84, 0, 0, 0), Width = 560,
+            Children =
+            {
+                WithAlign(Kit.Logo(96)),
+                new TextBlock { Text = "Ringside", FontSize = 84, FontWeight = FontWeight.Bold, Foreground = Brand.Fg1Brush, Margin = new Thickness(-3, 18, 0, 0), LetterSpacing = -1.5 },
+                new TextBlock { Text = "Your Claude Code and Codex limits, always in view.", FontSize = 30, LineHeight = 40, Foreground = Brand.Fg2Brush, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) },
+                new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 26, 0, 0),
+                    Children = { Art.Chip("Windows"), Art.Chip("macOS"), Art.Chip("Linux"), Art.Chip("Free and open source") } },
+            },
+        };
+        var widgets = new Grid
+        {
+            Width = 600, HorizontalAlignment = HorizontalAlignment.Right,
+            Children =
+            {
+                new Border { HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 40, 30, 0),
+                    Child = new LayoutTransformControl { LayoutTransform = new ScaleTransform(1.3, 1.3), ClipToBounds = false, Child = Widget(Look(), r) } },
+                new Border { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 18),
+                    Child = new LayoutTransformControl { LayoutTransform = new ScaleTransform(1.25, 1.25), ClipToBounds = false, Child = Widget(Look(s => s.View = ViewKind.Orb), r) } },
+            },
+        };
+        var card = new Grid
+        {
+            Width = 1280, Height = 640, ClipToBounds = true,
+            Background = new LinearGradientBrush
+            {
+                StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
+                GradientStops = { new GradientStop(Color.Parse("#2C2646"), 0), new GradientStop(Color.Parse("#16161D"), 0.55), new GradientStop(Color.Parse("#0E1716"), 1) },
+            },
+            Children = { left, widgets },
+        };
+        Save("social-card", card, scale: 1);
     }
 
     static void Hold(Action<Control> frame, Func<Control> make, int count)

@@ -70,6 +70,10 @@ public sealed class Settings
 
     public bool CheckForUpdates { get; set; } = true;
 
+    /// <summary>True when these settings came from Ringside 1.x, which had no Version field.</summary>
+    [JsonIgnore]
+    public bool UpgradedFromV1 { get; private set; }
+
     /// <summary>Ringside 1.x saved the pill view as a flag; read once, then dropped.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Compact { get; set; }
@@ -93,6 +97,7 @@ public sealed class Settings
         Settings s;
         try { s = JsonSerializer.Deserialize<Settings>(json, Json) ?? new Settings(); }
         catch (JsonException) { return new Settings(); }
+        s.UpgradedFromV1 = s.OnboardingDone && !json.Contains("\"Version\"", StringComparison.Ordinal);
         s.Normalize();
         return s;
     }

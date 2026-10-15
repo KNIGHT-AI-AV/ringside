@@ -49,9 +49,10 @@ public static class ClaudeCodeHook
                (c.Contains("--statusline", StringComparison.Ordinal) && c.Contains("Ringside", StringComparison.OrdinalIgnoreCase));
     }
 
-    // Forward slashes and quotes work in the bash Claude Code uses on every platform, and in cmd.
+    // Claude Code runs status lines with bash on every platform (Git Bash on Windows). Single quotes
+    // keep the path literal there: no $, backtick or quote in a folder name can turn into shell syntax.
     internal static string Command(string exe, bool isApp) =>
-        "\"" + exe.Replace('\\', '/') + "\"" + (isApp ? " --statusline" : "");
+        "'" + exe.Replace('\\', '/').Replace("'", "'\\''") + "'" + (isApp ? " --statusline" : "");
 
     public static bool Connect()
     {

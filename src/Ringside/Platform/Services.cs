@@ -54,7 +54,7 @@ public static class SingleInstance
     {
         try
         {
-            using var c = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+            using var c = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.CurrentUserOnly);
             c.Connect(600);
             using var w = new StreamWriter(c) { AutoFlush = true };
             w.WriteLine(message);
@@ -71,7 +71,8 @@ public static class SingleInstance
             {
                 try
                 {
-                    using var s = new NamedPipeServerStream(PipeName, PipeDirection.In, 1);
+                    // Only this user's processes may ask Ringside to come forward or quit.
+                    using var s = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.CurrentUserOnly);
                     s.WaitForConnection();
                     using var r = new StreamReader(s);
                     var line = r.ReadLine();

@@ -2,9 +2,9 @@
 
 ## 2.0.0 (2026-10-16)
 
-Ringside now runs on Windows, macOS and Linux, with a new look and much more to set.
+Ringside now runs on Windows and Linux, with macOS on the way, and has a new look and much more to set.
 
-- macOS (Apple silicon) and Linux builds, from one codebase.
+- Linux build, and macOS (Apple silicon) on the way, from one codebase.
 - New welcome cards that walk through setup with pictures: what Ringside found, your view, used or left, colors, alerts and the Claude Code link.
 - Three views: the full card, the slim pill, and the orb, a ring inside a ring like the logo.
 - Show limits as used (filling up) or as left (draining like a tank). Every number, tooltip, alert and the Claude Code status line follow the choice.

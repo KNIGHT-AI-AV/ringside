@@ -71,6 +71,14 @@ public sealed class CoreTests
     }
 
     [Fact]
+    public void Settings_know_when_they_came_from_1x()
+    {
+        Assert.True(Settings.Parse("""{"OnboardingDone":true}""").UpgradedFromV1);
+        Assert.False(Settings.Parse("""{"OnboardingDone":true,"Version":2}""").UpgradedFromV1);
+        Assert.False(Settings.Parse("""{"OnboardingDone":false}""").UpgradedFromV1);
+    }
+
+    [Fact]
     public void Split_needs_both_meters()
     {
         var s = Settings.Parse("""{"Split":true,"ShowCodex":false}""");
@@ -177,8 +185,11 @@ public sealed class CoreTests
     [Fact]
     public void Hook_command_quotes_the_path_and_adds_the_flag_for_the_app()
     {
-        Assert.Equal("\"C:/x y/ringside-statusline.exe\"", ClaudeCodeHook.Command(@"C:\x y\ringside-statusline.exe", false));
-        Assert.Equal("\"/Applications/Ringside.app/Contents/MacOS/Ringside\" --statusline",
+        Assert.Equal("'C:/x y/ringside-statusline.exe'", ClaudeCodeHook.Command(@"C:\x y\ringside-statusline.exe", false));
+        Assert.Equal("'/Applications/Ringside.app/Contents/MacOS/Ringside' --statusline",
             ClaudeCodeHook.Command("/Applications/Ringside.app/Contents/MacOS/Ringside", true));
+        // Shell syntax in a folder name stays literal.
+        Assert.Equal(@"'/home/a$(x)/it'\''s/Ringside.AppImage' --statusline",
+            ClaudeCodeHook.Command("/home/a$(x)/it's/Ringside.AppImage", true));
     }
 }
