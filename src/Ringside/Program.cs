@@ -16,6 +16,8 @@ public static class Program
 
         if (args.Length == 2 && args[0] == "--render-screenshots")
             return Screenshots.Render(args[1]);
+        if (args.Length == 2 && args[0] == "--render-demo")
+            return Screenshots.RenderDemo(args[1]);
 
         var app = new App();
         app.InitializeComponent();

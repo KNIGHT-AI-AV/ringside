@@ -2,11 +2,13 @@
 
 <h1 align="center">Ringside</h1>
 
-<p align="center">Your Claude Code and Codex limits, always in view on Windows.</p>
+<p align="center">Your Claude Code and Codex limits, always in view on Windows. 100% free and open source.</p>
+
+<p align="center"><a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest"><img src="https://img.shields.io/github/v/release/KNIGHT-AI-AV/ringside?style=flat-square" alt="Latest release"></a> <a href="https://github.com/KNIGHT-AI-AV/ringside/releases"><img src="https://img.shields.io/github/downloads/KNIGHT-AI-AV/ringside/total?style=flat-square" alt="Downloads"></a> <a href="LICENSE"><img src="https://img.shields.io/github/license/KNIGHT-AI-AV/ringside?style=flat-square" alt="MIT license"></a> <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?style=flat-square" alt="Windows 10 and 11"> <a href="https://github.com/KNIGHT-AI-AV/ringside/stargazers"><img src="https://img.shields.io/github/stars/KNIGHT-AI-AV/ringside?style=flat-square" alt="GitHub stars"></a></p>
 
 <p align="center"><a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-win-Setup.exe">Download for Windows</a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest">All downloads</a></p>
 
-<p align="center"><img src="docs/images/widget.png" width="333" alt="Ringside showing Claude at 42 percent and Codex at 64 percent"></p>
+<p align="center"><img src="docs/images/demo.gif" width="560" alt="Ringside: the Claude and Codex rings fill, turn amber and red as limits get close, then fold into the compact pill"></p>
 
 Ringside is a small always-on-top meter for Windows. It shows how much of your Claude and Codex usage limits you have used and when each one resets, so a limit never catches you in the middle of a task.
 
@@ -99,6 +101,10 @@ cd ringside
 ```
 
 Ringside is WPF on .NET 8. [Velopack](https://velopack.io) builds the installer and handles updates.
+
+## Like it?
+
+If Ringside saves you from hitting a limit in the middle of a task, a star on GitHub helps other people find it.
 
 ## License
 

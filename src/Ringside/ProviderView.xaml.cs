@@ -12,10 +12,18 @@ namespace Ringside;
 public partial class ProviderView : UserControl
 {
     Brush _accent = Brushes.White;
+    readonly Brush _fg1, _fg2, _track;
     double _target = -1;
     bool _first = true;
 
-    public ProviderView() => InitializeComponent();
+    public ProviderView()
+    {
+        InitializeComponent();
+        // Looked up once: the theme never changes while the app runs.
+        _fg1 = (Brush)FindResource("Fg1");
+        _fg2 = (Brush)FindResource("Fg2");
+        _track = (Brush)FindResource("TrackBrush");
+    }
 
     /// <summary>False for still renders, where the ring must be drawn at its final value.</summary>
     public bool Animate { get; set; } = true;
@@ -54,7 +62,7 @@ public partial class ProviderView : UserControl
         bool alert = p.Percent >= Theme.AlertAt;
         PctRun.Text = Fmt.Pct(p.Percent);
         PctSign.Text = "%";
-        PctRun.Foreground = alert ? new SolidColorBrush(Theme.RedColor) : (Brush)FindResource("Fg1");
+        PctRun.Foreground = alert ? new SolidColorBrush(Theme.RedColor) : _fg1;
         RingCtl.Stroke = Theme.State(p.Percent, _accent);
         RingCtl.Effect = alert
             ? new DropShadowEffect { Color = Theme.RedColor, BlurRadius = 14, ShadowDepth = 0, Opacity = 0.55 }
@@ -112,12 +120,12 @@ public partial class ProviderView : UserControl
         var label = new TextBlock
         {
             Text = w.Label, FontSize = 10.5, VerticalAlignment = VerticalAlignment.Center,
-            Foreground = (Brush)FindResource("Fg2"),
+            Foreground = _fg2,
         };
 
         double pct = Math.Clamp(w.Percent, 0, 100);
         var track = new Grid { Height = 4, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
-        track.Children.Add(new Border { CornerRadius = new CornerRadius(2), Background = (Brush)FindResource("TrackBrush") });
+        track.Children.Add(new Border { CornerRadius = new CornerRadius(2), Background = _track });
         var fillHost = new Grid();
         fillHost.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(pct, GridUnitType.Star) });
         fillHost.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100 - pct, GridUnitType.Star) });
@@ -133,7 +141,7 @@ public partial class ProviderView : UserControl
         {
             Text = Fmt.Pct(w.Percent) + "%", FontSize = 10.5,
             HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center,
-            Foreground = (Brush)FindResource("Fg1"),
+            Foreground = _fg1,
         };
         Typography.SetNumeralAlignment(value, FontNumeralAlignment.Tabular);
 

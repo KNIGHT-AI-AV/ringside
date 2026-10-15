@@ -24,8 +24,12 @@ public partial class App : Application
     readonly Alerts _alerts = new();
     (string, string) _shown = ("", "");
 
+    /// <summary>Set by the screenshot renderer: no single-instance check, no tray, no windows of its own.</summary>
+    internal static bool RenderOnly;
+
     protected override void OnStartup(StartupEventArgs e)
     {
+        if (RenderOnly) return;
         _single = new Mutex(true, @"Local\Ringside.Singleton", out bool first);
         _activate = new EventWaitHandle(false, EventResetMode.AutoReset, @"Local\Ringside.Activate");
         if (!first)

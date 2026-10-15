@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     bool _busy, _fullScreenHidden, _placed;
     int _guardTicks;
     double _pillA = -1, _pillB = -1;
+    Brush _fg1 = Brushes.White;
 
     public event Action<Snapshot, Snapshot>? Updated;
     public event Action? MenuRequested;
@@ -34,11 +35,13 @@ public partial class MainWindow : Window
         _settings = settings;
         _live = live;
         InitializeComponent();
+        _fg1 = (Brush)FindResource("Fg1");
         ClaudeView.Configure("Claude", Theme.ClaudeColor, Theme.ClaudeAccent);
         CodexView.Configure("Codex", Theme.CodexColor, Theme.CodexAccent);
         ClaudeView.Animate = CodexView.Animate = live;
         HintText.Visibility = live && !settings.HintShown ? Visibility.Visible : Visibility.Collapsed;
         ApplySettings(anchor: false);
+        if (!live) { Root.Opacity = 1; Slide.Y = 0; } // still renders skip the fade-in
         _poll.Tick += async (_, _) => await RefreshAsync();
         _guard.Tick += (_, _) => Guard();
         Loaded += OnLoaded;
@@ -110,7 +113,7 @@ public partial class MainWindow : Window
         var p = s.Primary;
         double v = Math.Clamp(p?.Percent ?? 0, 0, 100);
         pct.Text = p is null ? "-" : Fmt.Pct(p.Percent) + "%";
-        pct.Foreground = v >= Theme.AlertAt ? new SolidColorBrush(Theme.RedColor) : (Brush)FindResource("Fg1");
+        pct.Foreground = v >= Theme.AlertAt ? new SolidColorBrush(Theme.RedColor) : _fg1;
         ring.Stroke = Theme.State(v, accent);
         if (Math.Abs(v - last) < 0.01) return;
         last = v;
