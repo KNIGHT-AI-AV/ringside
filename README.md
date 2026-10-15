@@ -10,7 +10,7 @@
 
 Ringside is a small always-on-top meter for Windows. It shows how much of your Claude and Codex usage limits you have used and when each one resets, so a limit never catches you in the middle of a task.
 
-It never reads your login. Many usage meters read the token Claude Code or Codex keeps on disk and call the provider's servers with it. Ringside only reads the usage numbers your apps already save on your PC, and it sends nothing anywhere.
+It never reads your login. Many usage meters read the token Claude Code or Codex keeps on disk and call the provider's servers with it. Ringside only reads the usage numbers your apps already save on your PC, and it never sends your usage anywhere.
 
 ## Install
 
