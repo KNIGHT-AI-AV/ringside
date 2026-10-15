@@ -1,0 +1,127 @@
+<Window x:Class="Ringside.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Ringside"
+        Title="Ringside Settings" Icon="pack://application:,,,/ringside.ico"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="True" SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen" UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display" FontFamily="{StaticResource UiFont}">
+  <Grid Margin="18">
+    <Border CornerRadius="18" Background="#16161A" Effect="{StaticResource CardShadow}"/>
+    <Border CornerRadius="18" BorderThickness="1" Background="{StaticResource CardFill}" BorderBrush="{StaticResource CardEdge}">
+      <StackPanel Margin="26,20,26,24">
+        <Grid MouseLeftButtonDown="OnDrag" Background="Transparent">
+          <StackPanel Orientation="Horizontal">
+            <Grid Width="24" Height="24">
+              <local:Ring Thickness="3" Value="72" Stroke="{x:Static local:Theme.ClaudeAccent}" Track="{StaticResource TrackBrush}"/>
+              <local:Ring Width="12" Height="12" Thickness="3" Value="46" Stroke="{x:Static local:Theme.CodexAccent}" Track="{StaticResource TrackBrush}"/>
+            </Grid>
+            <TextBlock Text="Settings" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Fg1}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+          </StackPanel>
+          <Button Style="{StaticResource IconButton}" Content="&#xE8BB;" HorizontalAlignment="Right" ToolTip="Close" Click="OnClose"/>
+        </Grid>
+
+        <Grid Margin="0,4,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="270"/>
+            <ColumnDefinition Width="36"/>
+            <ColumnDefinition Width="270"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel>
+            <TextBlock Style="{StaticResource SectionLabel}" Text="SHOW"/>
+            <CheckBox x:Name="ShowClaude" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Claude" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+            <CheckBox x:Name="ShowCodex" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Codex" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+
+            <TextBlock Style="{StaticResource SectionLabel}" Text="APPEARANCE"/>
+            <Grid Margin="0,4">
+              <TextBlock Text="Size" FontSize="12.5" Foreground="{StaticResource Fg1}" VerticalAlignment="Center"/>
+              <Border HorizontalAlignment="Right" CornerRadius="9" Background="#0FFFFFFF">
+                <StackPanel Orientation="Horizontal">
+                  <RadioButton x:Name="SizeSmall" Style="{StaticResource Segment}" GroupName="Size" Content="Small" Click="OnChanged"/>
+                  <RadioButton x:Name="SizeNormal" Style="{StaticResource Segment}" GroupName="Size" Content="Normal" Click="OnChanged"/>
+                  <RadioButton x:Name="SizeLarge" Style="{StaticResource Segment}" GroupName="Size" Content="Large" Click="OnChanged"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+            <Grid Margin="0,10,0,4">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="64"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="42"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="Opacity" FontSize="12.5" Foreground="{StaticResource Fg1}" VerticalAlignment="Center"/>
+              <Slider x:Name="OpacitySlider" Grid.Column="1" Style="{StaticResource ThinSlider}" Minimum="40" Maximum="100"
+                      SmallChange="5" LargeChange="10" VerticalAlignment="Center" ValueChanged="OnOpacity"/>
+              <TextBlock x:Name="OpacityText" Grid.Column="2" FontSize="12" Foreground="{StaticResource Fg2}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Typography.NumeralAlignment="Tabular"/>
+            </Grid>
+
+            <TextBlock Style="{StaticResource SectionLabel}" Text="ALERTS"/>
+            <CheckBox x:Name="NotifyWarn" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Notify at 75% used" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+            <CheckBox x:Name="NotifyAlert" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Notify at 90% used" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+            <CheckBox x:Name="NotifyReset" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Notify when a limit resets" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+          </StackPanel>
+
+          <StackPanel Grid.Column="2">
+            <TextBlock Style="{StaticResource SectionLabel}" Text="BEHAVIOR"/>
+            <CheckBox x:Name="TopmostToggle" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Keep on top" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+            <CheckBox x:Name="ClickThrough" Style="{StaticResource Toggle}" Click="OnChanged">
+              <StackPanel>
+                <TextBlock Text="Click-through" Foreground="{StaticResource Fg1}"/>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,0" Text="Clicks pass to the window below. Turn it off from the tray icon."/>
+              </StackPanel>
+            </CheckBox>
+            <CheckBox x:Name="HideFullScreen" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Hide over full-screen apps" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+            <CheckBox x:Name="StartWithWindows" Style="{StaticResource Toggle}" Click="OnStartup">
+              <TextBlock Text="Start with Windows" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+            <CheckBox x:Name="AutoUpdate" Style="{StaticResource Toggle}" Click="OnChanged">
+              <TextBlock Text="Check for updates automatically" Foreground="{StaticResource Fg1}"/>
+            </CheckBox>
+
+            <TextBlock Style="{StaticResource SectionLabel}" Text="CLAUDE CODE"/>
+            <Grid>
+              <StackPanel Margin="0,0,96,0">
+                <TextBlock Text="Exact reset times" FontSize="12.5" Foreground="{StaticResource Fg1}"/>
+                <TextBlock x:Name="HookStatus" Style="{StaticResource Hint}" Margin="0,2,0,0"/>
+              </StackPanel>
+              <Button x:Name="HookButton" Style="{StaticResource GhostButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                      MinWidth="86" Click="OnHook"/>
+            </Grid>
+          </StackPanel>
+        </Grid>
+
+        <Rectangle Height="1" Fill="{StaticResource Hairline}" Margin="0,20,0,14"/>
+        <Grid>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock FontSize="11.5" Foreground="{StaticResource Fg2}">
+              <Run x:Name="VersionRun"/><Run Text="  ·  "/><Hyperlink x:Name="RepoLink" Click="OnRepo">GitHub</Hyperlink><Run Text="  ·  MIT License"/>
+            </TextBlock>
+            <TextBlock x:Name="UpdateStatus" FontSize="11" Foreground="{StaticResource Fg3}" Margin="0,3,0,0"
+                       Text="Not affiliated with Anthropic or OpenAI."/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Button x:Name="CheckNow" Style="{StaticResource GhostButton}" Content="Check for updates" Click="OnCheckNow"/>
+            <Button Style="{StaticResource GhostButton}" Content="Reset position" Margin="8,0,0,0" Click="OnResetPosition"/>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

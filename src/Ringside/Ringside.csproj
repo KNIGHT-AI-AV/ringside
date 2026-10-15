@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\assets\ringside.ico</ApplicationIcon>
+    <StartupObject>Ringside.Program</StartupObject>
+    <AssemblyName>Ringside</AssemblyName>
+    <RootNamespace>Ringside</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>Ringside</Product>
+    <Company>Knight AI+AV</Company>
+    <Copyright>Copyright (c) 2026 Knight AI+AV</Copyright>
+    <Description>Claude Code and Codex usage limits at a glance.</Description>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- A resident widget: favour a small footprint over GC throughput. -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>false</TieredPGO>
+    <!-- WPF reads DPI awareness from app.manifest; the WinForms analyzer does not know that. -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Program.Main runs Velopack's hooks before WPF starts, so App.xaml is a plain page. -->
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
+    <Resource Include="..\..\assets\ringside.ico" Link="ringside.ico" />
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.161" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ringside.Tests" />
+  </ItemGroup>
+
+</Project>

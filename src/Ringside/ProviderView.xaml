@@ -1,0 +1,36 @@
+<UserControl x:Class="Ringside.ProviderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Ringside">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="56"/>
+      <ColumnDefinition Width="14"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid x:Name="RingHost" Width="56" Height="56" VerticalAlignment="Top" Background="Transparent">
+      <local:Ring x:Name="RingCtl" Thickness="5" Track="{StaticResource TrackBrush}"/>
+      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,1"
+                 Typography.NumeralAlignment="Tabular"><Run x:Name="PctRun" Text="-" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Fg1}"/><Run x:Name="PctSign" Text="" FontSize="9.5" FontWeight="Medium" Foreground="{StaticResource Fg2}"/></TextBlock>
+    </Grid>
+
+    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+      <Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Ellipse x:Name="Dot" Width="6" Height="6" Margin="0,1,7,0" VerticalAlignment="Center"/>
+          <TextBlock x:Name="NameText" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource Fg1}" VerticalAlignment="Center"/>
+          <Border x:Name="PlanChip" CornerRadius="4" BorderThickness="1" BorderBrush="#2BFFFFFF" Padding="5,0,5,1"
+                  Margin="7,1,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+            <TextBlock x:Name="PlanText" FontSize="9.5" FontWeight="Medium" Foreground="{StaticResource Fg2}"/>
+          </Border>
+        </StackPanel>
+        <TextBlock x:Name="AgeText" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="10.5"
+                   Foreground="{StaticResource Fg3}"/>
+      </Grid>
+      <TextBlock x:Name="PrimaryText" FontSize="11" Foreground="{StaticResource Fg2}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+      <StackPanel x:Name="Bars"/>
+      <TextBlock x:Name="NoteText" FontSize="10.5" Foreground="{StaticResource Fg3}" Margin="0,4,0,0" Visibility="Collapsed"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

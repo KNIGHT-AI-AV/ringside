@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>ringside-statusline</AssemblyName>
+    <RootNamespace>Ringside.StatusLine</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>Ringside</Product>
+    <Company>Knight AI+AV</Company>
+    <Copyright>Copyright (c) 2026 Knight AI+AV</Copyright>
+    <!-- Claude Code runs this after every reply, so it must start instantly: native, no runtime. -->
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>
