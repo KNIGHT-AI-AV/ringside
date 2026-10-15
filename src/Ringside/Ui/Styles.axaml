@@ -1,0 +1,312 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ===== text ===== -->
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="24"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+    <Setter Property="LetterSpacing" Value="-0.3"/>
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="16"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+  </Style>
+  <Style Selector="TextBlock.body">
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="LineHeight" Value="20"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg2}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+  </Style>
+  <Style Selector="TextBlock.hint">
+    <Setter Property="FontSize" Value="11.5"/>
+    <Setter Property="LineHeight" Value="17"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg2}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+  </Style>
+  <Style Selector="TextBlock.section">
+    <Setter Property="FontSize" Value="10.5"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="LetterSpacing" Value="0.8"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg3}"/>
+    <Setter Property="Margin" Value="0,20,0,8"/>
+  </Style>
+  <Style Selector="TextBlock.label">
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+
+  <!-- ===== buttons ===== -->
+  <Style Selector="Button.primary">
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Padding" Value="20,10"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Bg" CornerRadius="10" Background="{StaticResource BrandGradient}" Padding="{TemplateBinding Padding}"
+                BoxShadow="0 4 14 0 #558B7CF6">
+          <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ Border#Bg">
+    <Setter Property="Opacity" Value="0.92"/>
+  </Style>
+  <Style Selector="Button.primary:pressed /template/ Border#Bg">
+    <Setter Property="Opacity" Value="0.8"/>
+  </Style>
+
+  <Style Selector="Button.ghost">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Padding" Value="14,8"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Bg" CornerRadius="9" Background="#0FFFFFFF" BorderBrush="#2BFFFFFF" BorderThickness="1"
+                Padding="{TemplateBinding Padding}">
+          <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.ghost:pointerover /template/ Border#Bg">
+    <Setter Property="Background" Value="#1FFFFFFF"/>
+  </Style>
+  <Style Selector="Button.ghost:disabled">
+    <Setter Property="Opacity" Value="0.45"/>
+  </Style>
+
+  <Style Selector="Button.link">
+    <Setter Property="Foreground" Value="#B3A9FA"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="P" Content="{TemplateBinding Content}" Background="Transparent"/>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.link:pointerover">
+    <Setter Property="Foreground" Value="#D0C9FC"/>
+  </Style>
+
+  <!-- A small square button with one icon path. -->
+  <Style Selector="Button.icon">
+    <Setter Property="Width" Value="24"/>
+    <Setter Property="Height" Value="22"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg2}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Bg" CornerRadius="6" Background="Transparent">
+          <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.icon:pointerover /template/ Border#Bg">
+    <Setter Property="Background" Value="#1FFFFFFF"/>
+  </Style>
+  <Style Selector="Button.icon:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+  </Style>
+  <Style Selector="Button.icon PathIcon">
+    <Setter Property="Width" Value="11"/>
+    <Setter Property="Height" Value="11"/>
+  </Style>
+
+  <!-- ===== a switch: label on the left, track on the right ===== -->
+  <Style Selector="CheckBox.switch">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Margin" Value="0,5"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*,Auto" Background="Transparent">
+          <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center" Margin="0,0,18,0"/>
+          <Border Name="Track" Grid.Column="1" Width="36" Height="21" CornerRadius="10.5" VerticalAlignment="Center"
+                  Background="#33FFFFFF">
+            <Border.Transitions>
+              <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.16"/>
+              </Transitions>
+            </Border.Transitions>
+            <Ellipse Name="Knob" Width="15" Height="15" Fill="#F4F4F6" HorizontalAlignment="Left" Margin="3,0,0,0">
+              <Ellipse.Transitions>
+                <Transitions>
+                  <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16"/>
+                </Transitions>
+              </Ellipse.Transitions>
+            </Ellipse>
+          </Border>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="CheckBox.switch:checked /template/ Border#Track">
+    <Setter Property="Background" Value="#8B7CF6"/>
+  </Style>
+  <Style Selector="CheckBox.switch:checked /template/ Ellipse#Knob">
+    <Setter Property="RenderTransform" Value="translateX(15px)"/>
+  </Style>
+  <Style Selector="CheckBox.switch:disabled">
+    <Setter Property="Opacity" Value="0.45"/>
+  </Style>
+
+  <!-- ===== segmented choice ===== -->
+  <Style Selector="Border.segments">
+    <Setter Property="Background" Value="#0DFFFFFF"/>
+    <Setter Property="CornerRadius" Value="9"/>
+    <Setter Property="Padding" Value="2"/>
+    <Setter Property="BorderBrush" Value="#14FFFFFF"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="RadioButton.segment">
+    <Setter Property="Foreground" Value="{StaticResource Fg2}"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Bg" CornerRadius="7" Background="Transparent" Padding="12,6">
+          <Border.Transitions>
+            <Transitions>
+              <BrushTransition Property="Background" Duration="0:0:0.14"/>
+            </Transitions>
+          </Border.Transitions>
+          <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.segment:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+  </Style>
+  <Style Selector="RadioButton.segment:checked">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+  </Style>
+  <Style Selector="RadioButton.segment:checked /template/ Border#Bg">
+    <Setter Property="Background" Value="#2EFFFFFF"/>
+  </Style>
+
+  <!-- ===== big picture choice (onboarding and settings) ===== -->
+  <Style Selector="RadioButton.tile">
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Bg" CornerRadius="14" Background="#0BFFFFFF" BorderBrush="#17FFFFFF" BorderThickness="1.5" Padding="10">
+          <Border.Transitions>
+            <Transitions>
+              <BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+              <BrushTransition Property="Background" Duration="0:0:0.15"/>
+            </Transitions>
+          </Border.Transitions>
+          <ContentPresenter Content="{TemplateBinding Content}"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.tile:pointerover /template/ Border#Bg">
+    <Setter Property="Background" Value="#12FFFFFF"/>
+    <Setter Property="BorderBrush" Value="#30FFFFFF"/>
+  </Style>
+  <Style Selector="RadioButton.tile:checked /template/ Border#Bg">
+    <Setter Property="Background" Value="#1C8B7CF6"/>
+    <Setter Property="BorderBrush" Value="#8B7CF6"/>
+  </Style>
+
+  <!-- ===== color swatch ===== -->
+  <Style Selector="RadioButton.swatch">
+    <Setter Property="Width" Value="28"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Margin" Value="0,0,6,6"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <Ellipse Name="Halo" Stroke="#F4F4F6" StrokeThickness="2" Opacity="0"/>
+          <Ellipse Margin="4" Fill="{TemplateBinding Background}"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.swatch:pointerover /template/ Ellipse#Halo">
+    <Setter Property="Opacity" Value="0.35"/>
+  </Style>
+  <Style Selector="RadioButton.swatch:checked /template/ Ellipse#Halo">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- ===== sidebar navigation (settings) ===== -->
+  <Style Selector="RadioButton.nav">
+    <Setter Property="Foreground" Value="{StaticResource Fg2}"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="Margin" Value="0,1"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Bg" CornerRadius="8" Background="Transparent" Padding="10,8">
+          <ContentPresenter Content="{TemplateBinding Content}"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.nav:pointerover">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+  </Style>
+  <Style Selector="RadioButton.nav:checked">
+    <Setter Property="Foreground" Value="{StaticResource Fg1}"/>
+  </Style>
+  <Style Selector="RadioButton.nav:checked /template/ Border#Bg">
+    <Setter Property="Background" Value="#1FFFFFFF"/>
+  </Style>
+
+  <!-- ===== panels ===== -->
+  <Style Selector="Border.group">
+    <Setter Property="Background" Value="#0AFFFFFF"/>
+    <Setter Property="BorderBrush" Value="#12FFFFFF"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="12"/>
+    <Setter Property="Padding" Value="16,8"/>
+  </Style>
+
+  <!-- ===== tooltips ===== -->
+  <Style Selector="ToolTip">
+    <Setter Property="Background" Value="#24242A"/>
+    <Setter Property="BorderBrush" Value="#30FFFFFF"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Padding" Value="10,7"/>
+    <Setter Property="FontSize" Value="11.5"/>
+    <Setter Property="Foreground" Value="#E8E8EC"/>
+    <Setter Property="MaxWidth" Value="300"/>
+  </Style>
+
+  <!-- ===== text input ===== -->
+  <Style Selector="TextBox.hex">
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Width" Value="92"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="Padding" Value="8,4"/>
+    <Setter Property="CornerRadius" Value="7"/>
+  </Style>
+</Styles>

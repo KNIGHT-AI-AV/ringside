@@ -159,15 +159,16 @@ public sealed class SourceTests : IDisposable
     {
         var alerts = new Alerts();
         var settings = new Settings();
+        var history = new UsageHistory();
         var now = DateTimeOffset.UtcNow;
         Snapshot At(double pct) => new("Claude", null,
             new[] { new LimitWindow("5-hour", pct, now.AddHours(1), ResetKind.Exact, false) }, now, null, null, "");
 
-        Assert.Empty(alerts.Evaluate(At(70), settings, now));            // baseline
-        Assert.Single(alerts.Evaluate(At(80), settings, now));           // crossed 75
-        Assert.Empty(alerts.Evaluate(At(85), settings, now));
-        Assert.Single(alerts.Evaluate(At(91), settings, now));           // crossed 90
-        var reset = alerts.Evaluate(At(3), settings, now).Single();      // window reset
+        Assert.Empty(alerts.Evaluate(At(70), settings, history, now));            // baseline
+        Assert.Single(alerts.Evaluate(At(80), settings, history, now));           // crossed 75
+        Assert.Empty(alerts.Evaluate(At(85), settings, history, now));
+        Assert.Single(alerts.Evaluate(At(91), settings, history, now));           // crossed 90
+        var reset = alerts.Evaluate(At(3), settings, history, now).Single();      // window reset
         Assert.Contains("reset", reset.Title);
     }
 }

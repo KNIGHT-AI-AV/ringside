@@ -8,13 +8,18 @@ namespace Ringside;
 
 /// <summary>
 /// Optional link to Claude Code. Claude Code hands its status line command the account's
-/// exact limits after each reply; pointing that command at ringside-statusline.exe lets
-/// Ringside show exact reset times. Whatever status line the user had keeps working: the
-/// bridge runs it and prints its output. Disconnecting puts the original back.
+/// exact limits after each reply; pointing that command at Ringside's bridge lets Ringside
+/// show exact reset times. Whatever status line the user had keeps working: the bridge runs
+/// it and prints its output. Disconnecting puts the original back.
 /// </summary>
-static class ClaudeCodeHook
+public static class ClaudeCodeHook
 {
-    const string BridgeName = "ringside-statusline.exe";
+    /// <summary>
+    /// The bridge, set by the app at startup. On Windows it is the native ringside-statusline.exe
+    /// next to Ringside.exe; on macOS and Linux it is Ringside itself run with --statusline.
+    /// </summary>
+    public static string? BridgeExe { get; set; }
+    public static bool BridgeIsApp { get; set; }
 
     static string ConfigDir =>
         Environment.GetEnvironmentVariable("CLAUDE_CONFIG_DIR") is { Length: > 0 } dir
@@ -23,10 +28,9 @@ static class ClaudeCodeHook
 
     static string SettingsPath => Path.Combine(ConfigDir, "settings.json");
     static string PreviousPath => Path.Combine(Paths.Data, "statusline-previous.json");
-    static string BridgePath => Path.Combine(AppContext.BaseDirectory, BridgeName);
 
     public static bool ClaudeCodeFound => Directory.Exists(ConfigDir);
-    public static bool BridgeAvailable => File.Exists(BridgePath);
+    public static bool BridgeAvailable => BridgeExe is not null && File.Exists(BridgeExe);
 
     public static bool IsConnected
     {
@@ -37,18 +41,23 @@ static class ClaudeCodeHook
         }
     }
 
-    static bool IsOurs(JsonNode? line) =>
-        line is JsonObject o && o["command"]?.GetValueKind() == JsonValueKind.String &&
-        o["command"]!.GetValue<string>().Contains(BridgeName, StringComparison.OrdinalIgnoreCase);
+    internal static bool IsOurs(JsonNode? line)
+    {
+        if (line is not JsonObject o || o["command"]?.GetValueKind() != JsonValueKind.String) return false;
+        string c = o["command"]!.GetValue<string>();
+        return c.Contains("ringside-statusline", StringComparison.OrdinalIgnoreCase) ||
+               (c.Contains("--statusline", StringComparison.Ordinal) && c.Contains("Ringside", StringComparison.OrdinalIgnoreCase));
+    }
 
-    // Forward slashes and quotes work in the bash Claude Code uses on Windows, and in cmd.
-    static string Command() => "\"" + BridgePath.Replace('\\', '/') + "\"";
+    // Forward slashes and quotes work in the bash Claude Code uses on every platform, and in cmd.
+    internal static string Command(string exe, bool isApp) =>
+        "\"" + exe.Replace('\\', '/') + "\"" + (isApp ? " --statusline" : "");
 
     public static bool Connect()
     {
         try
         {
-            if (!BridgeAvailable) return false;
+            if (!BridgeAvailable || Paths.Sandboxed) return false;
             Directory.CreateDirectory(ConfigDir);
             var root = Load() ?? new JsonObject();
             var current = root["statusLine"];
@@ -57,7 +66,7 @@ static class ClaudeCodeHook
                 Directory.CreateDirectory(Paths.Data);
                 File.WriteAllText(PreviousPath, current?.ToJsonString() ?? "null");
             }
-            var line = new JsonObject { ["type"] = "command", ["command"] = Command() };
+            var line = new JsonObject { ["type"] = "command", ["command"] = Command(BridgeExe!, BridgeIsApp) };
             if (current is JsonObject old && old["padding"] is JsonNode padding) line["padding"] = padding.DeepClone();
             root["statusLine"] = line;
             Save(root);
@@ -70,10 +79,27 @@ static class ClaudeCodeHook
         }
     }
 
+    /// <summary>Points an existing link at the bridge's current path, e.g. after the app moved.</summary>
+    public static void Repair()
+    {
+        try
+        {
+            if (!BridgeAvailable || Paths.Sandboxed) return;
+            var root = Load();
+            if (root?["statusLine"] is not JsonObject line || !IsOurs(line)) return;
+            string want = Command(BridgeExe!, BridgeIsApp);
+            if (line["command"]!.GetValue<string>() == want) return;
+            line["command"] = want;
+            Save(root);
+        }
+        catch (Exception e) { Log.Write("claude code repair failed: " + e.Message); }
+    }
+
     public static void Disconnect()
     {
         try
         {
+            if (Paths.Sandboxed) return;
             var root = Load();
             if (root is null || !IsOurs(root["statusLine"])) return;
             JsonNode? previous = File.Exists(PreviousPath) ? JsonNode.Parse(File.ReadAllText(PreviousPath)) : null;

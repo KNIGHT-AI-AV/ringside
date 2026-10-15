@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>Ringside</string>
+  <key>CFBundleDisplayName</key>
+  <string>Ringside</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.knightaiav.ringside</string>
+  <key>CFBundleVersion</key>
+  <string>{VERSION}</string>
+  <key>CFBundleShortVersionString</key>
+  <string>{VERSION}</string>
+  <key>CFBundleExecutable</key>
+  <string>Ringside</string>
+  <key>CFBundleIconFile</key>
+  <string>Ringside.icns</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>12.0</string>
+  <!-- A menu bar app: no Dock icon, no app menu. -->
+  <key>LSUIElement</key>
+  <true/>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+  <key>LSApplicationCategoryType</key>
+  <string>public.app-category.developer-tools</string>
+  <key>NSHumanReadableCopyright</key>
+  <string>Copyright (c) 2026 Knight AI+AV. MIT License.</string>
+</dict>
+</plist>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Everything that is not UI: the data sources, settings, wording, forecasts and alerts.
+       It runs the same on Windows, macOS and Linux. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Ringside</RootNamespace>
+    <AssemblyName>Ringside.Core</AssemblyName>
+    <Product>Ringside</Product>
+    <Company>Knight AI+AV</Company>
+    <Copyright>Copyright (c) 2026 Knight AI+AV</Copyright>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ringside" />
+    <InternalsVisibleTo Include="Ringside.Render" />
+    <InternalsVisibleTo Include="Ringside.Tests" />
+  </ItemGroup>
+
+</Project>

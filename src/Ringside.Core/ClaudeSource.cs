@@ -79,12 +79,24 @@ public sealed class ClaudeSource
 
     static IEnumerable<string> LogCandidates()
     {
+        const string LogName = "plan-usage-history.json";
+        if (OperatingSystem.IsMacOS())
+        {
+            yield return Path.Combine(Paths.Home, "Library", "Application Support", "Claude", LogName);
+            yield break;
+        }
+        if (!OperatingSystem.IsWindows())
+        {
+            yield return Path.Combine(Paths.XdgConfig, "Claude", LogName);
+            yield break;
+        }
+
         string roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        yield return Path.Combine(roaming, "Claude", "plan-usage-history.json");
+        yield return Path.Combine(roaming, "Claude", LogName);
 
         // Store (MSIX) installs keep their roaming data inside the package folder.
         foreach (var d in PackageDirs())
-            yield return Path.Combine(d, "LocalCache", "Roaming", "Claude", "plan-usage-history.json");
+            yield return Path.Combine(d, "LocalCache", "Roaming", "Claude", LogName);
     }
 
     static List<string> PackageDirs()
@@ -194,7 +206,7 @@ public sealed class ClaudeSource
         return new LimitWindow("5-hour", v, upper, ResetKind.UpperBound, false);
     }
 
-    // ---- Claude Code's status line (written by ringside-statusline.exe) ----------------
+    // ---- Claude Code's status line (written by the Ringside status line bridge) ----------------
 
     void RefreshFeed()
     {

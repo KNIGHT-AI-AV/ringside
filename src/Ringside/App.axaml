@@ -1,0 +1,67 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Ringside.App"
+             Name="Ringside"
+             RequestedThemeVariant="Dark">
+  <Application.Resources>
+    <ResourceDictionary>
+      <!-- Text contrast on the #18181C card: Fg1 17:1, Fg2 7.6:1, Fg3 4.6:1 (all pass WCAG AA). -->
+      <SolidColorBrush x:Key="Fg1" Color="#F4F4F6"/>
+      <SolidColorBrush x:Key="Fg2" Color="#A6A6B0"/>
+      <SolidColorBrush x:Key="Fg3" Color="#7C7C86"/>
+      <SolidColorBrush x:Key="TrackBrush" Color="#1EFFFFFF"/>
+      <SolidColorBrush x:Key="Hairline" Color="#14FFFFFF"/>
+      <Color x:Key="AccentColor">#8B7CF6</Color>
+      <SolidColorBrush x:Key="Accent" Color="#8B7CF6"/>
+      <SolidColorBrush x:Key="AccentHover" Color="#9D90F8"/>
+      <SolidColorBrush x:Key="AccentSoft" Color="#268B7CF6"/>
+      <SolidColorBrush x:Key="Surface" Color="#16161A"/>
+      <SolidColorBrush x:Key="Surface2" Color="#1C1C21"/>
+      <SolidColorBrush x:Key="Raised" Color="#0DFFFFFF"/>
+      <SolidColorBrush x:Key="RaisedHover" Color="#17FFFFFF"/>
+      <SolidColorBrush x:Key="Edge" Color="#1FFFFFFF"/>
+      <SolidColorBrush x:Key="WarnBrush" Color="#F3B048"/>
+
+      <LinearGradientBrush x:Key="CardFill" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="#1E1E23" Offset="0"/>
+        <GradientStop Color="#16161A" Offset="1"/>
+      </LinearGradientBrush>
+      <LinearGradientBrush x:Key="CardEdge" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="#26FFFFFF" Offset="0"/>
+        <GradientStop Color="#0AFFFFFF" Offset="1"/>
+      </LinearGradientBrush>
+      <LinearGradientBrush x:Key="BrandGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+        <GradientStop Color="#A99CFA" Offset="0"/>
+        <GradientStop Color="#7262EE" Offset="1"/>
+      </LinearGradientBrush>
+      <RadialGradientBrush x:Key="StageGlow" Center="50%,38%" GradientOrigin="50%,38%" RadiusX="70%" RadiusY="80%">
+        <GradientStop Color="#3A8B7CF6" Offset="0"/>
+        <GradientStop Color="#118B7CF6" Offset="0.45"/>
+        <GradientStop Color="#00000000" Offset="1"/>
+      </RadialGradientBrush>
+      <LinearGradientBrush x:Key="StageFill" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="#1D1B29" Offset="0"/>
+        <GradientStop Color="#141418" Offset="1"/>
+      </LinearGradientBrush>
+
+      <BoxShadows x:Key="CardShadow">0 7 26 0 #80000000</BoxShadows>
+      <BoxShadows x:Key="SoftShadow">0 4 18 0 #66000000</BoxShadows>
+
+      <!-- Fluent's slider in Ringside's colors. -->
+      <SolidColorBrush x:Key="SliderTrackValueFill" Color="#8B7CF6"/>
+      <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="#9D90F8"/>
+      <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="#9D90F8"/>
+      <SolidColorBrush x:Key="SliderThumbBackground" Color="#F4F4F6"/>
+      <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#FFFFFF"/>
+      <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="#FFFFFF"/>
+      <SolidColorBrush x:Key="SliderTrackFill" Color="#26FFFFFF"/>
+      <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#33FFFFFF"/>
+      <SolidColorBrush x:Key="SliderTrackFillPressed" Color="#33FFFFFF"/>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme/>
+    <StyleInclude Source="avares://Ringside/Ui/Styles.axaml"/>
+  </Application.Styles>
+</Application>

@@ -2,43 +2,48 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>..\..\assets\ringside.ico</ApplicationIcon>
-    <StartupObject>Ringside.Program</StartupObject>
     <AssemblyName>Ringside</AssemblyName>
     <RootNamespace>Ringside</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Product>Ringside</Product>
     <Company>Knight AI+AV</Company>
     <Copyright>Copyright (c) 2026 Knight AI+AV</Copyright>
     <Description>Claude Code and Codex usage limits at a glance.</Description>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <!-- A resident widget: favour a small footprint over GC throughput. -->
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
     <TieredPGO>false</TieredPGO>
-    <!-- WPF reads DPI awareness from app.manifest; the WinForms analyzer does not know that. -->
-    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+    <!-- macOS and Linux run the Claude Code bridge through this exe; precompiled code starts faster. -->
+    <PublishReadyToRun Condition="'$(RuntimeIdentifier)' != ''">true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Program.Main runs Velopack's hooks before WPF starts, so App.xaml is a plain page. -->
-    <ApplicationDefinition Remove="App.xaml" />
-    <Page Include="App.xaml" />
-    <Resource Include="..\..\assets\ringside.ico" Link="ringside.ico" />
+    <AvaloniaResource Include="Assets\**" />
     <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.22" />
     <PackageReference Include="Velopack" Version="1.2.161" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ringside.Core\Ringside.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ringside.Render" />
     <InternalsVisibleTo Include="Ringside.Tests" />
   </ItemGroup>
 

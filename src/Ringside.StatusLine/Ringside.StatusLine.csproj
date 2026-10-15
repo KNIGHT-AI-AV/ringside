@@ -8,7 +8,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>ringside-statusline</AssemblyName>
     <RootNamespace>Ringside.StatusLine</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Product>Ringside</Product>
     <Company>Knight AI+AV</Company>
     <Copyright>Copyright (c) 2026 Knight AI+AV</Copyright>
@@ -18,5 +18,9 @@
     <OptimizationPreference>Size</OptimizationPreference>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Ringside.Core\StatusLineBridge.cs" Link="StatusLineBridge.cs" />
+  </ItemGroup>
 
 </Project>

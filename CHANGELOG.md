@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.0.0 (2026-10-16)
+
+Ringside now runs on Windows, macOS and Linux, with a new look and much more to set.
+
+- macOS (Apple silicon) and Linux builds, from one codebase.
+- New welcome cards that walk through setup with pictures: what Ringside found, your view, used or left, colors, alerts and the Claude Code link.
+- Three views: the full card, the slim pill, and the orb, a ring inside a ring like the logo.
+- Show limits as used (filling up) or as left (draining like a tank). Every number, tooltip, alert and the Claude Code status line follow the choice.
+- Pick any color for each app, or use traffic light colors.
+- Split Claude and Codex into two meters you can place anywhere; drop one onto the other to join them again.
+- Show only one app's meter if you use only one. Ringside starts with just the one it finds.
+- Smart forecast: when a limit climbs fast, Ringside shows when it will run out at your current pace, and can warn you before it does.
+- Your own amber and red thresholds, rings or bars on the card, countdown or clock reset times, and a choice of which limit the main gauge follows.
+- A right-click quick panel for views, used or left, split or join, keep on top and click-through.
+- A new Settings window with a live preview.
+- Notifications drawn by Ringside, the same on every system.
+
 ## 1.0.0 (2026-10-15)
 
 First release.
