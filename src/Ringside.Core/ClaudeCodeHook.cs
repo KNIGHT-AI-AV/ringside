@@ -110,10 +110,7 @@ public static class ClaudeCodeHook
             if (PluginAvailable)
             {
                 CopyPlugin();
-                var env = root["env"] as JsonObject ?? new JsonObject();
-                string? dirs = env[PluginEnv] is JsonValue v && v.TryGetValue(out string? d) ? d : null;
-                env[PluginEnv] = AddDir(dirs, PluginDir, Separator);
-                root["env"] = env;
+                AddPlugin(root);
                 any = true;
             }
 
@@ -143,7 +140,9 @@ public static class ClaudeCodeHook
 
     /// <summary>
     /// At every start: refreshes the installed plugin from this version of Ringside, and points
-    /// an existing status line at the bridge's current path, e.g. after the app moved.
+    /// an existing status line at the bridge's current path, e.g. after the app moved. Someone who
+    /// linked Claude Code through the status line alone (every 1.x link) also gets the plugin,
+    /// since the status line only runs in the terminal and goes quiet everywhere else.
     /// </summary>
     public static void Repair()
     {
@@ -152,14 +151,34 @@ public static class ClaudeCodeHook
             if (Paths.Sandboxed) return;
             var root = Load();
             if (root is null) return;
-            if (PluginAvailable && HasPlugin(root)) CopyPlugin();
-            if (!BridgeAvailable || root["statusLine"] is not JsonObject line || !IsOurs(line)) return;
-            string want = Command(BridgeExe!, BridgeIsApp);
-            if (line["command"]!.GetValue<string>() == want) return;
-            line["command"] = want;
-            Save(root);
+            if (PluginAvailable && (IsOurs(root["statusLine"]) || HasPlugin(root))) CopyPlugin();
+            if (Refresh(root)) Save(root);
         }
         catch (Exception e) { Log.Write("claude code repair failed: " + e.Message); }
+    }
+
+    /// <summary>The settings half of <see cref="Repair"/>. True when it changed something.</summary>
+    internal static bool Refresh(JsonObject root)
+    {
+        bool linked = IsOurs(root["statusLine"]);
+        bool changed = false;
+
+        if (linked && PluginAvailable && !HasPlugin(root))
+        {
+            AddPlugin(root);
+            changed = true;
+        }
+
+        if (linked && BridgeAvailable && root["statusLine"] is JsonObject line)
+        {
+            string want = Command(BridgeExe!, BridgeIsApp);
+            if (line["command"]!.GetValue<string>() != want)
+            {
+                line["command"] = want;
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     /// <summary>Takes both halves out again and puts back the status line the user had.</summary>
@@ -199,6 +218,21 @@ public static class ClaudeCodeHook
         {
             Log.Write("claude code disconnect failed: " + e.Message);
         }
+    }
+
+    /// <summary>
+    /// Names the plugin folder in Claude Code's settings env. A plugin-dirs value the user already
+    /// has, in settings or in their own environment, is kept: the settings value replaces the
+    /// environment one when Claude Code starts, so it has to carry both.
+    /// </summary>
+    static void AddPlugin(JsonObject root)
+    {
+        var env = root["env"] as JsonObject ?? new JsonObject();
+        string? dirs = env[PluginEnv] is JsonValue v && v.TryGetValue(out string? d)
+            ? d
+            : Environment.GetEnvironmentVariable(PluginEnv);
+        env[PluginEnv] = AddDir(dirs, PluginDir, Separator);
+        root["env"] = env;
     }
 
     /// <summary>Copies the shipped plugin into Ringside's data folder, replacing an older copy.</summary>

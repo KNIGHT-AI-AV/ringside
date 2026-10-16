@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
 using Xunit;
@@ -198,6 +199,30 @@ public sealed class CoreTests
         Assert.Equal("/home/a/.config/Ringside/claude-plugin", ClaudeCodeHook.AddDir(null, "/home/a/.config/Ringside/claude-plugin", ':'));
         Assert.Equal(@"C:\other", ClaudeCodeHook.RemoveDir(@"C:\other;C:\Ringside", @"C:\Ringside", ';'));
         Assert.Null(ClaudeCodeHook.RemoveDir("/r", "/r", ':'));
+    }
+
+    [Fact]
+    public void A_status_line_link_from_1x_gains_the_plugin_once()
+    {
+        var source = Directory.CreateTempSubdirectory().FullName;
+        ClaudeCodeHook.PluginSource = source;
+        try
+        {
+            var linked = JsonNode.Parse("""{"statusLine":{"type":"command","command":"'C:/x/ringside-statusline.exe'"}}""")!.AsObject();
+            Assert.True(ClaudeCodeHook.Refresh(linked));
+            Assert.EndsWith("claude-plugin", linked["env"]!["CLAUDE_CODE_PLUGIN_DIRS"]!.GetValue<string>());
+            Assert.False(ClaudeCodeHook.Refresh(linked));
+
+            // Someone who never linked Claude Code is left alone.
+            var mine = JsonNode.Parse("""{"statusLine":{"type":"command","command":"bash ~/.claude/statusline.sh"}}""")!.AsObject();
+            Assert.False(ClaudeCodeHook.Refresh(mine));
+            Assert.Null(mine["env"]);
+        }
+        finally
+        {
+            ClaudeCodeHook.PluginSource = null;
+            Directory.Delete(source);
+        }
     }
 
     [Fact]
