@@ -128,7 +128,7 @@ Does it count API usage? No. It shows plan limits (such as Pro, Max and Team), w
 
 ## Build from source
 
-You need the .NET 8 SDK. The Windows status line bridge is compiled to native code, which also needs Visual Studio's Desktop development with C++ workload.
+You need the .NET 10 SDK. The Windows status line bridge is compiled to native code, which also needs Visual Studio's Desktop development with C++ workload.
 
 ```powershell
 git clone https://github.com/KNIGHT-AI-AV/ringside
@@ -137,7 +137,7 @@ cd ringside
 ./build.ps1 -Version 2.0.0 -Target win -Pack  # one platform plus its installer (needs: dotnet tool install -g vpk)
 ```
 
-Ringside is [Avalonia](https://avaloniaui.net) on .NET 8, one codebase for all three systems. [Velopack](https://velopack.io) builds the installers and handles updates. The README images and the GIF are rendered from the real UI by `tools/Ringside.Render`.
+Ringside is [Avalonia](https://avaloniaui.net) on .NET 10, one codebase for all three systems. [Velopack](https://velopack.io) builds the installers and handles updates. The README images and the GIF are rendered from the real UI by `tools/Ringside.Render`.
 
 ## Like it?
 

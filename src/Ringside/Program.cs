@@ -18,9 +18,11 @@ public static class Program
 
         // Must run before the UI: the installer calls back into the app through it on
         // install, update and uninstall.
-        VelopackApp.Build()
-            .OnBeforeUninstallFastCallback(_ => Cleanup.Run(quitRunningCopy: true))
-            .Run();
+        var velopack = VelopackApp.Build();
+        // Only Windows has an uninstaller; macOS and Linux clean up from Settings instead.
+        if (OperatingSystem.IsWindows())
+            velopack = velopack.OnBeforeUninstallFastCallback(_ => Cleanup.Run(quitRunningCopy: true));
+        velopack.Run();
 
         // Already running: bring that one forward instead.
         if (!SingleInstance.Claim())

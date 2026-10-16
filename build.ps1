@@ -8,7 +8,8 @@
     ./build.ps1 -Version 2.0.0 -Target win -Pack # one platform
 
 .NOTES
-    Needs the .NET 8 SDK, and Velopack's CLI for -Pack (dotnet tool install -g vpk).
+    Needs the .NET 10 SDK (pass -Dotnet if it is not the dotnet on PATH), and Velopack's CLI
+    for -Pack (dotnet tool install -g vpk).
     Windows: the status line bridge is compiled to native code, which needs Visual Studio's
     "Desktop development with C++" workload.
     Linux: packed here into an AppImage (vpk [linux] pack).
@@ -19,9 +20,14 @@ param(
     [string]$Version = '2.0.0',
     [ValidateSet('all', 'win', 'linux', 'mac')][string]$Target = 'all',
     [switch]$Pack,
-    [switch]$SkipTests
+    [switch]$SkipTests,
+    [string]$Dotnet = 'dotnet'
 )
 $ErrorActionPreference = 'Stop'
+if ($Dotnet -ne 'dotnet') {
+    # A side-by-side SDK: make every tool, NativeAOT included, use it and nothing else.
+    $env:DOTNET_ROOT = Split-Path $Dotnet
+}
 $root = $PSScriptRoot
 $out = Join-Path $root 'artifacts'
 $releases = Join-Path $out 'releases'
@@ -29,19 +35,26 @@ $vpkCmd = Get-Command vpk -ErrorAction SilentlyContinue
 $vpk = if ($vpkCmd) { $vpkCmd.Source } else { Join-Path $env:USERPROFILE '.dotnet\tools\vpk.exe' }
 
 function Run([string]$exe, [string[]]$arguments) {
-    & $exe @arguments
+    # Tools write progress to stderr; in Windows PowerShell 5 that must not stop the build.
+    $eap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    # vpk runs on the system .NET; only the build steps use the side-by-side SDK.
+    $root = $env:DOTNET_ROOT
+    if ($exe -eq $vpk) { [Environment]::SetEnvironmentVariable('DOTNET_ROOT', $null, 'Process') }
+    try { & $exe @arguments }
+    finally { $ErrorActionPreference = $eap; [Environment]::SetEnvironmentVariable('DOTNET_ROOT', $root, 'Process') }
     if ($LASTEXITCODE) { throw "$exe failed with exit code $LASTEXITCODE" }
 }
 
 function Publish([string]$rid, [string]$dir) {
     if (Test-Path $dir) { Remove-Item -Recurse -Force -LiteralPath $dir }
-    Run dotnet @('publish', 'src/Ringside', '-c', 'Release', '-r', $rid, '--self-contained', 'true',
+    Run $Dotnet @('publish', 'src/Ringside', '-c', 'Release', '-r', $rid, '--self-contained', 'true',
         '-o', $dir, '--nologo', "-p:Version=$Version", '-p:DebugType=none')
 }
 
 Push-Location $root
 try {
-    if (-not $SkipTests) { Run dotnet @('test', 'tests/Ringside.Tests', '-c', 'Release', '--nologo') }
+    if (-not $SkipTests) { Run $Dotnet @('test', 'tests/Ringside.Tests', '-c', 'Release', '--nologo') }
     New-Item -ItemType Directory -Force $releases | Out-Null
 
     if ($Target -in 'all', 'win') {
@@ -50,7 +63,9 @@ try {
         $vcvars = & $vswhere -all -products * -find 'VC\Auxiliary\Build\vcvars64.bat' | Select-Object -First 1
         if (-not $vcvars) { throw 'MSVC not found: install the "Desktop development with C++" workload.' }
         $bridge = Join-Path $out 'bridge'
-        & cmd.exe /c "call `"$vcvars`" >nul 2>&1 && dotnet publish src\Ringside.StatusLine -c Release -r win-x64 -o `"$bridge`" --nologo -p:Version=$Version -p:IlcUseEnvironmentalTools=true -p:DebugType=none"
+        $ErrorActionPreference = 'Continue'
+        & cmd.exe /c "call `"$vcvars`" >nul 2>&1 && `"$Dotnet`" publish src\Ringside.StatusLine -c Release -r win-x64 -o `"$bridge`" --nologo -p:Version=$Version -p:IlcUseEnvironmentalTools=true -p:DebugType=none"
+        $ErrorActionPreference = 'Stop'
         if ($LASTEXITCODE) { throw 'status line bridge build failed' }
 
         $app = Join-Path $out 'win'

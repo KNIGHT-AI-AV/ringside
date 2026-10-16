@@ -3,7 +3,7 @@
   <!-- Everything that is not UI: the data sources, settings, wording, forecasts and alerts.
        It runs the same on Windows, macOS and Linux. -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
