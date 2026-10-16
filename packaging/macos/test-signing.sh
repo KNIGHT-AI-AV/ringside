@@ -9,7 +9,7 @@
 #      live in extended attributes, which ditto keeps);
 #   3. a plain zip round trip, which drops extended attributes, does not verify; that is why the
 #      script zips with ditto. (Informational: printed, not required.)
-# Usage: ./test-signing.sh   (from anywhere; exits non-zero if 1 or 2 fails)
+# Usage: bash test-signing.sh   (from anywhere; exits non-zero if 1 or 2 fails)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -42,7 +42,7 @@ PLIST
 
 cd "$WORK"
 echo "== 1. sign with the real script (ad-hoc, no notarization)"
-IDENTITY=- SKIP_NOTARIZE=1 "$HERE/sign-and-notarize.sh" 0.0.0-test
+IDENTITY=- SKIP_NOTARIZE=1 bash "$HERE/sign-and-notarize.sh" 0.0.0-test
 codesign --verify --strict --verbose=2 Ringside.app
 xattr Ringside.app/Contents/MacOS/Ringside.deps.json | grep -q com.apple.cs.CodeDirectory
 echo "PASS 1: bundle verifies strictly; Ringside.deps.json carries its signature in xattrs"

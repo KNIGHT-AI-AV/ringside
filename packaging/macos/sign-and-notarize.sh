@@ -4,7 +4,7 @@
 #   IDENTITY=<Developer ID Application certificate SHA-1, or its full name> \
 #   KEYCHAIN=/path/to/signing.keychain-db \
 #   NOTARY_KEY=/path/AuthKey_XXXX.p8 NOTARY_KEY_ID=XXXX NOTARY_ISSUER=xxxxxxxx-xxxx-... \
-#   ./sign-and-notarize.sh 2.0.0
+#   bash sign-and-notarize.sh 2.0.0
 #
 # Signs inside-out (every file in Contents/MacOS, then the main executable, then the bundle),
 # never --deep, and stops on the first failure. Writes Ringside-<version>-osx-arm64.zip next to
