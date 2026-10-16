@@ -12,6 +12,10 @@ public enum Level { Ok, Warn, Alert }
 /// </summary>
 public static class Display
 {
+    /// <summary>The card's main line for a reading whose window has (or may have) reset since.</summary>
+    public static string LapsedText(LimitWindow w) =>
+        w.Kind == ResetKind.Exact ? $"{w.Label} reset since the last reading" : $"{w.Label} may have reset since the last reading";
+
     /// <summary>The value a gauge draws: used fills toward 100, left drains toward 0.</summary>
     public static double Shown(double used, FillMode fill) =>
         Math.Clamp(fill == FillMode.Used ? used : 100 - used, 0, 100);
@@ -65,7 +69,7 @@ public static class Fmt
 
     public static string Reset(LimitWindow w, DateTimeOffset now, ResetStyle style = ResetStyle.Countdown)
     {
-        if (w.Lapsed) return "reset since last update";
+        if (w.Lapsed) return w.Kind == ResetKind.Exact ? "reset since last update" : "may have reset since last update";
         if (w.ResetsAt is not { } r) return "";
         var d = r - now;
         if (d <= TimeSpan.Zero) return "resetting now";

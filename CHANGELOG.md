@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1 (2026-10-16)
+
+- The Claude app's usage log is written only now and then, often right as a limit fills up. Once the 5-hour window could have reset since its last entry, Ringside now shows a dash and says the window may have reset, instead of an old 100%. Turn on Live Claude limits for live numbers.
+- New pictures in the welcome cards and in Settings, Claude Code show Live Claude limits where Claude Code runs: the terminal, the Claude app's Code tab and VS Code.
+- The welcome card that lists what Ringside found now calls Claude Code's part Live limits.
+- The demo GIF ends with Live Claude limits.
+
 ## 2.0.0 (2026-10-16)
 
 Ringside now runs on Windows, macOS and Linux, and has a new look and much more to set.

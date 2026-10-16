@@ -12,45 +12,148 @@ public static class Art
 {
     static readonly FontFamily Mono = new("Cascadia Mono, Consolas, Menlo, SF Mono, DejaVu Sans Mono, monospace");
 
-    /// <summary>A terminal running Claude Code, with Ringside's status line at the bottom.</summary>
-    public static Control Terminal(FillMode fill, double width = 470)
+    /// <summary>
+    /// Live Claude limits: the three places Claude Code runs (the terminal, the Claude app's Code tab
+    /// and VS Code), each showing the live reading, with an arrow into Ringside's own meter when given.
+    /// </summary>
+    public static Control LiveSurfaces(FillMode fill, Control? meter = null, double surfaceWidth = 132)
     {
-        TextBlock Line(string text, IBrush fg, double top = 0) => new()
+        string reading = fill == FillMode.Used ? "5h 42% · 7d 31%" : "5h 58% left";
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(Surface("Terminal", TerminalHead(), TerminalBody(), "#0E0E12", reading, surfaceWidth));
+        row.Children.Add(Surface("Claude app", ClaudeHead(), ClaudeBody(), "#1B1917", reading, surfaceWidth));
+        row.Children.Add(Surface("VS Code", EditorHead(), EditorBody(), "#16181E", reading, surfaceWidth));
+        if (meter is not null)
         {
-            Text = text, FontFamily = Mono, FontSize = 11.5, Foreground = fg, Margin = new Thickness(0, top, 0, 0),
-        };
-        var dim = new SolidColorBrush(Color.Parse("#6E6E78"));
-        var prompt = new SolidColorBrush(Color.Parse("#D97757"));
-        string status = fill == FillMode.Used ? "5h 42% · resets 2h 14m | 7d 31%" : "5h 58% left · resets 2h 14m | 7d 69% left";
-        var statusLine = new Border
-        {
-            Margin = new Thickness(0, 12, 0, 0), Padding = new Thickness(8, 5), CornerRadius = new CornerRadius(6),
-            Background = new SolidColorBrush(Color.Parse("#1A8B7CF6")), BorderBrush = new SolidColorBrush(Color.Parse("#558B7CF6")), BorderThickness = new Thickness(1),
-            Child = Line(status, new SolidColorBrush(Color.Parse("#D9D3FF"))),
-        };
-        var body = new StackPanel
-        {
-            Margin = new Thickness(14, 10, 14, 12),
-            Children =
+            row.Children.Add(new Avalonia.Controls.Shapes.Path
             {
-                new TextBlock { FontFamily = Mono, FontSize = 11.5, Inlines = new InlineCollection { new Run("> ") { Foreground = prompt }, new Run("tidy up the release script") { Foreground = Brand.Fg1Brush } } },
-                Line("● Read build.ps1", dim, 6),
-                Line("● Updated 3 files", dim, 2),
-                statusLine,
+                Data = Geometry.Parse("M0,7 L24,7 M18,2 L24,7 L18,12"), Stroke = Brand.Fg3Brush, StrokeThickness = 1.6,
+                StrokeLineCap = PenLineCap.Round, StrokeJoin = PenLineJoin.Round,
+                VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 2, 20),
+            });
+            meter.VerticalAlignment = VerticalAlignment.Center;
+            meter.Margin = new Thickness(0, 0, 0, 20);
+            row.Children.Add(meter);
+        }
+        return row;
+    }
+
+    static Control Surface(string name, Control head, Control body, string background, string reading, double width)
+    {
+        var live = new Border
+        {
+            Margin = new Thickness(0, 9, 0, 0), Padding = new Thickness(6, 3), CornerRadius = new CornerRadius(5), HorizontalAlignment = HorizontalAlignment.Left,
+            Background = new SolidColorBrush(Color.Parse("#1A8B7CF6")), BorderBrush = new SolidColorBrush(Color.Parse("#558B7CF6")), BorderThickness = new Thickness(1),
+            Child = new StackPanel
+            {
+                Orientation = Orientation.Horizontal, Spacing = 5,
+                Children = { Kit.Dot(Color.Parse("#3DD68C"), 5), new TextBlock { Text = reading, FontFamily = Mono, FontSize = 9.5, Foreground = new SolidColorBrush(Color.Parse("#D9D3FF")) } },
             },
         };
-        var dots = new StackPanel
+        // Every window gets the same height, with the live reading pinned to the bottom, so the
+        // three line up whatever their content.
+        var inner = new DockPanel { Margin = new Thickness(10, 8, 10, 10) };
+        DockPanel.SetDock(live, Dock.Bottom);
+        inner.Children.Add(live);
+        inner.Children.Add(body);
+        DockPanel.SetDock(head, Dock.Top);
+        var window = new Border
         {
-            Orientation = Orientation.Horizontal, Spacing = 6, Margin = new Thickness(12, 9, 0, 0),
-            Children = { Kit.Dot(Color.Parse("#FF5F57"), 9), Kit.Dot(Color.Parse("#FEBC2E"), 9), Kit.Dot(Color.Parse("#28C840"), 9) },
-        };
-        return new Border
-        {
-            Width = width, CornerRadius = new CornerRadius(10), Background = new SolidColorBrush(Color.Parse("#0E0E12")),
+            Width = width, Height = 112, CornerRadius = new CornerRadius(9), ClipToBounds = true, Background = new SolidColorBrush(Color.Parse(background)),
             BorderBrush = new SolidColorBrush(Color.Parse("#22FFFFFF")), BorderThickness = new Thickness(1),
-            BoxShadow = BoxShadows.Parse("0 10 30 0 #80000000"),
-            Child = new StackPanel { Children = { dots, body } },
+            BoxShadow = BoxShadows.Parse("0 8 22 0 #70000000"),
+            Child = new DockPanel { Children = { head, inner } },
         };
+        return new StackPanel
+        {
+            Spacing = 7, VerticalAlignment = VerticalAlignment.Center,
+            Children = { window, new TextBlock { Text = name, FontSize = 11, FontWeight = FontWeight.Medium, Foreground = Brand.Fg2Brush, HorizontalAlignment = HorizontalAlignment.Center } },
+        };
+    }
+
+    // A faux line of text: a rounded bar, the way app screenshots are sketched.
+    static Border Bar(double width, string color, double top = 5) => new()
+    {
+        Width = width, Height = 5, CornerRadius = new CornerRadius(3), HorizontalAlignment = HorizontalAlignment.Left,
+        Background = new SolidColorBrush(Color.Parse(color)), Margin = new Thickness(0, top, 0, 0),
+    };
+
+    static Control TerminalHead() => new StackPanel
+    {
+        Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(9, 8, 0, 0),
+        Children = { Kit.Dot(Color.Parse("#FF5F57"), 6), Kit.Dot(Color.Parse("#FEBC2E"), 6), Kit.Dot(Color.Parse("#28C840"), 6) },
+    };
+
+    static Control TerminalBody() => new StackPanel
+    {
+        Children =
+        {
+            new TextBlock
+            {
+                FontFamily = Mono, FontSize = 9.5,
+                Inlines = new InlineCollection { new Run("> ") { Foreground = new SolidColorBrush(Color.Parse("#D97757")) }, new Run("tidy up") { Foreground = Brand.Fg1Brush } },
+            },
+            Bar(70, "#3A3A44", 6),
+            Bar(52, "#3A3A44"),
+        },
+    };
+
+    static Control ClaudeHead() => new Border
+    {
+        Background = new SolidColorBrush(Color.Parse("#24211E")), Padding = new Thickness(8, 5),
+        Child = new StackPanel
+        {
+            Orientation = Orientation.Horizontal, Spacing = 6,
+            Children =
+            {
+                new Border
+                {
+                    Width = 14, Height = 14, CornerRadius = new CornerRadius(4),
+                    Background = Brand.Diagonal(new Rgb(0xF4, 0xA6, 0x88), new Rgb(0xCF, 0x64, 0x40)),
+                    Child = new PathIcon { Data = Icons.Get("spark"), Width = 8, Height = 8, Foreground = Brushes.White },
+                },
+                new TextBlock { Text = "Code", FontSize = 10, FontWeight = FontWeight.Medium, Foreground = Brand.Fg2Brush, VerticalAlignment = VerticalAlignment.Center },
+            },
+        },
+    };
+
+    static Control ClaudeBody() => new StackPanel
+    {
+        Children =
+        {
+            new Border
+            {
+                HorizontalAlignment = HorizontalAlignment.Right, CornerRadius = new CornerRadius(7), Padding = new Thickness(7, 4, 7, 6),
+                Background = new SolidColorBrush(Color.Parse("#34302B")),
+                Child = new StackPanel { Children = { Bar(54, "#6B645C", 0) } },
+            },
+            Bar(84, "#3B3732", 7),
+            Bar(62, "#3B3732"),
+        },
+    };
+
+    static Control EditorHead() => new Border
+    {
+        Background = new SolidColorBrush(Color.Parse("#1D2027")), BorderBrush = new SolidColorBrush(Color.Parse("#14FFFFFF")), BorderThickness = new Thickness(0, 0, 0, 1),
+        Child = new Border
+        {
+            HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(9, 4, 10, 5),
+            Background = new SolidColorBrush(Color.Parse("#16181E")), BorderBrush = new SolidColorBrush(Color.Parse("#4D8DF7")), BorderThickness = new Thickness(0, 2, 0, 0),
+            Child = new TextBlock { Text = "release.ps1", FontFamily = Mono, FontSize = 9.5, Foreground = Brand.Fg2Brush },
+        },
+    };
+
+    static Control EditorBody()
+    {
+        Control Code(double indent, params (double width, string color)[] parts)
+        {
+            var line = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(indent, 5, 0, 0) };
+            foreach (var (w, c) in parts) line.Children.Add(Bar(w, c, 0));
+            return line;
+        }
+        var body = new StackPanel { Children = { Code(0, (22, "#C792EA"), (40, "#82AAFF")), Code(10, (30, "#89DDFF"), (34, "#C3E88D")), Code(10, (48, "#F78C6C")) } };
+        body.Children[0].Margin = new Thickness(0, 1, 0, 0);
+        return body;
     }
 
     /// <summary>The three apps Ringside reads, each marked found or not found.</summary>
@@ -58,7 +161,7 @@ public static class Art
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         row.Children.Add(Tile("Claude app", "Usage log", Brand.Diagonal(new Rgb(0xF4, 0xA6, 0x88), new Rgb(0xCF, 0x64, 0x40)), Glyph("spark", 22), d.ClaudeDesktop));
-        row.Children.Add(Tile("Claude Code", "Status line", new SolidColorBrush(Color.Parse("#26262E")), Glyph("terminal", 22), d.ClaudeCode));
+        row.Children.Add(Tile("Claude Code", "Live limits", new SolidColorBrush(Color.Parse("#26262E")), Glyph("terminal", 22), d.ClaudeCode));
         row.Children.Add(Tile("Codex", "Session logs", Brand.Diagonal(new Rgb(0x62, 0xE5, 0xBF), new Rgb(0x0F, 0x9E, 0x7B)), Glyph("refresh", 22), d.Codex));
         return row;
     }

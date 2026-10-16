@@ -8,7 +8,7 @@
 
 <p align="center"><a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-win-Setup.exe"><b>Windows</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside.AppImage"><b>Linux</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-osx-arm64.zip"><b>macOS</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest">All downloads</a></p>
 
-<p align="center"><img src="docs/images/demo.gif" width="620" alt="Ringside: the rings fill up, flip to show what's left, switch between the card, pill and orb views, change colors, split apart and join again"></p>
+<p align="center"><img src="docs/images/demo.gif" width="620" alt="Ringside: the rings fill up, flip to show what's left, switch between the card, pill and orb views, change colors, split apart and join again, then show live Claude limits from the terminal, the Claude app and VS Code"></p>
 
 Ringside is a small always-on-top meter for your Claude and Codex usage limits. It shows how much of each limit you have used, or how much is left, and when it resets, so a limit never catches you in the middle of a task.
 
@@ -94,6 +94,8 @@ Settings has a live preview that redraws as you change things: the view, used or
 ## Live Claude limits (recommended)
 
 The Claude desktop app writes its usage log only now and then, so on its own, Ringside's Claude numbers can be hours old. Claude Code knows your exact limits after every reply, and Ringside can get them from it.
+
+<p align="center"><img src="docs/images/live-limits.png" width="640" alt="Claude Code in a terminal, in the Claude app's Code tab and in VS Code, each showing the live 5-hour and weekly limits, feeding Ringside's orb"></p>
 
 Turn on Live Claude limits in the welcome cards or in Settings, Claude Code. Ringside then adds two small things to Claude Code:
 

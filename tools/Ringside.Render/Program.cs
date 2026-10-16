@@ -90,6 +90,9 @@ static class Program
             new Border { Width = 70 },
             Widget(Look(s => s.View = ViewKind.Orb), r, "Codex"))));
 
+        // Live Claude limits: Claude Code's three homes feeding the meter.
+        Save("live-limits", Desk(Art.LiveSurfaces(FillMode.Used, Widget(Look(s => s.View = ViewKind.Orb), r)), pad: 34));
+
         // Transparent cut-outs for the social card.
         Save("orb-clear", Widget(Look(s => s.View = ViewKind.Orb), r));
         Save("card-clear", Widget(Look(), r));
@@ -120,6 +123,8 @@ static class Program
         w.Content = null;
         return c;
     }
+
+    static Control Scaled(Control c, double scale) => new LayoutTransformControl { LayoutTransform = new ScaleTransform(scale, scale), Child = c };
 
     static Control Row(params Control[] items)
     {
@@ -259,6 +264,15 @@ static class Program
         // 6. The forecast.
         caption = "It warns you before you run out";
         Hold(Frame, () => Widget(Look(), Reading.Sample(Now, claude: 81, claudeRunsOut: Now.AddMinutes(52))), 10);
+
+        // 7. Live Claude limits from wherever Claude Code runs.
+        caption = "Live Claude limits from the terminal, the Claude app and VS Code";
+        for (int i = 0; i <= 10; i++)
+        {
+            double t = Ease(i / 10.0);
+            Frame(Art.LiveSurfaces(FillMode.Used, Scaled(Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now, claude: 42 * t, codex: 18 * t)), 0.55), 104));
+        }
+        Hold(Frame, () => Art.LiveSurfaces(FillMode.Used, Scaled(Widget(Look(x => x.View = ViewKind.Orb), Reading.Sample(Now)), 0.55), 104), 10);
         Console.WriteLine($"{n} frames in {dir}");
     }
 

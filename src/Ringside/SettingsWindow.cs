@@ -280,7 +280,7 @@ public sealed class SettingsWindow : CardWindow
     {
         var p = new StackPanel();
         p.Children.Add(Kit.Text("Claude Code knows your exact limits after every reply. Connecting adds Ringside's small Claude Code plugin, which hands them over in the terminal, the Claude app's Code tab and VS Code, plus a status line link for the terminal. It reads no credentials and sends nothing anywhere. Your own status line keeps working.", "body"));
-        p.Children.Add(new Border { Margin = new Thickness(0, 14, 0, 0), Child = Art.Terminal(S.Fill) });
+        p.Children.Add(new Border { Margin = new Thickness(0, 16, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, Child = Art.LiveSurfaces(S.Fill, surfaceWidth: 150) });
         var status = new TextBlock { Classes = { "hint" }, Margin = new Thickness(0, 12, 0, 8) };
         var button = new Button { Classes = { "ghost" }, HorizontalAlignment = HorizontalAlignment.Left };
         void Refresh()

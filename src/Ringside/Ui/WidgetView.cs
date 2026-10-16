@@ -366,7 +366,7 @@ public sealed class WidgetView : UserControl
                 _word.Text = "";
                 _gauge.Value = 0;
                 _gauge.Effect = null;
-                _primary.Text = p is { Lapsed: true } ? $"{p.Label} reset since the last reading" : snap.Note ?? "No data yet";
+                _primary.Text = p is { Lapsed: true } ? Display.LapsedText(p) : snap.Note ?? "No data yet";
                 _note.Text = p is { Lapsed: true } ? snap.Note ?? "" : "";
                 _note.IsVisible = _note.Text.Length > 0;
                 _forecast.IsVisible = false;

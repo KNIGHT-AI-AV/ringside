@@ -340,7 +340,8 @@ public sealed class OnboardingWindow : CardWindow
                 Kit.Switch("Check for updates", "Asks GitHub for new versions now and then.", _updates, on => _updates = on),
             },
         };
-        return Page(Center(Art.Terminal(S.Fill, 430)), "Last step",
+        var meter = Preview(Look(s => s.View = ViewKind.Orb), Both, scale: 0.55);
+        return Page(Center(Art.LiveSurfaces(S.Fill, meter, surfaceWidth: 118)), "Last step",
             "Claude Code can hand Ringside its exact limits after every reply, in the terminal, the Claude app and VS Code. Connect it and Claude's numbers stay live.",
             options, heroHeight: 196);
     }

@@ -66,6 +66,28 @@ public sealed class SourceTests : IDisposable
     }
 
     [Fact]
+    public void Claude_at_the_limit_stops_reading_full_once_the_window_may_have_reset()
+    {
+        // 2026-10-16: the app logged 0 at the 09:00 reset and 100 at 13:59; the window reset at 14:00.
+        var reset = new DateTimeOffset(2026, 10, 16, 9, 0, 0, TimeSpan.Zero);
+        var full = new DateTimeOffset(2026, 10, 16, 13, 59, 21, TimeSpan.Zero);
+        var log = Write("plan-usage-history.json", $$$"""
+            {"version":2,"samples":[
+              {"t":{{{Ms(reset)}}},"org":"a","u":{"fh":0}},
+              {"t":{{{Ms(full)}}},"org":"a","u":{"fh":100}}
+            ]}
+            """);
+        var before = new ClaudeSource(log, Path.Combine(_dir, "none.json")).Read(full.AddSeconds(20)).Windows.Single();
+        Assert.False(before.Lapsed);
+        Assert.Equal(100, before.Percent);
+
+        var after = new ClaudeSource(log, Path.Combine(_dir, "none.json")).Read(reset.AddHours(5).AddMinutes(2)).Windows.Single();
+        Assert.True(after.Lapsed);
+        Assert.Equal(0, after.Percent);
+        Assert.Equal("5-hour may have reset since the last reading", Display.LapsedText(after));
+    }
+
+    [Fact]
     public void Claude_window_that_must_have_reset_reads_zero()
     {
         var now = DateTimeOffset.UtcNow;

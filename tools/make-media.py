@@ -22,6 +22,7 @@ STILLS = [
     "widget-pill", "widget-orb", "toast", "quick-panel",
     "onboarding-1", "onboarding-3", "onboarding-4", "onboarding-5",
     "settings-look", "settings-colors", "settings-alerts",
+    "live-limits", "onboarding-2", "onboarding-8", "settings-claudecode",
 ]
 for name in STILLS:
     src = os.path.join(renders, name + ".png")

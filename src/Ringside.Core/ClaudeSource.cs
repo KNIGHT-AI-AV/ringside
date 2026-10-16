@@ -204,6 +204,10 @@ public sealed class ClaudeSource
         if (k > 0)
         {
             var lower = s[k - 1].T + FiveHours;
+            // Past the earliest moment the window could have reset, the old number may belong to
+            // a window that is gone (the app logs 100% at the limit, then nothing until it next
+            // refreshes), so it must not pass for the current one.
+            if (now >= lower) return new LimitWindow("5-hour", 0, lower, ResetKind.Estimate, true);
             if (upper - lower <= TimeSpan.FromMinutes(31))
                 return new LimitWindow("5-hour", v, lower + (upper - lower) / 2, ResetKind.Estimate, false);
         }
