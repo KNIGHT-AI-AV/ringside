@@ -87,6 +87,9 @@ try {
             Run $vpk @('[linux]', 'pack', '--packId', 'Ringside', '--packVersion', $Version, '--packDir', $app,
                 '--mainExe', 'Ringside', '--runtime', 'linux-x64', '--packTitle', 'Ringside', '--packAuthors', 'Knight AI+AV',
                 '--icon', 'assets/ringside.png', '--releaseNotes', 'CHANGELOG.md', '--outputDir', $releases)
+            # vpk leaves the squashfs unpadded; loop-device mounts (firejail --appimage, the AppImage
+            # catalog's test) then refuse it. The download gets padded to whole 4 KiB blocks.
+            Run python @('-I', 'tools/pad-appimage.py', (Join-Path $releases 'Ringside.AppImage'))
         }
     }
 
