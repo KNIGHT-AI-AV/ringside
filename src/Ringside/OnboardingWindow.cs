@@ -328,8 +328,8 @@ public sealed class OnboardingWindow : CardWindow
         bool hookPossible = _found.ClaudeCode && _found.BridgeAvailable && !Os.IsTranslocated;
         string hookHint = !_found.ClaudeCode ? "Needs Claude Code. You can turn it on later in Settings."
             : Os.IsTranslocated ? "Move Ringside to your Applications folder first, then turn this on in Settings."
-            : "Your own status line keeps working. Remove it any time in Settings.";
-        var hook = Kit.Switch("Exact Claude reset times", hookHint, _hook && hookPossible, on => _hook = on);
+            : "Adds Ringside's small Claude Code plugin and status line link. Reads no credentials; your own status line keeps working.";
+        var hook = Kit.Switch("Live Claude limits", hookHint, _hook && hookPossible, on => _hook = on);
         hook.IsEnabled = hookPossible || _host.Demo;
         var options = new StackPanel
         {
@@ -341,7 +341,7 @@ public sealed class OnboardingWindow : CardWindow
             },
         };
         return Page(Center(Art.Terminal(S.Fill, 430)), "Last step",
-            "Claude Code can hand Ringside its exact limits after every reply. Connect it for exact Claude reset times.",
+            "Claude Code can hand Ringside its exact limits after every reply, in the terminal, the Claude app and VS Code. Connect it and Claude's numbers stay live.",
             options, heroHeight: 196);
     }
 

@@ -39,7 +39,7 @@ public sealed record Detection(bool ClaudeDesktop, bool ClaudeCode, bool Codex, 
         new ClaudeSource().DesktopLogFound,
         ClaudeCodeHook.ClaudeCodeFound,
         new CodexSource().SessionsFound,
-        ClaudeCodeHook.BridgeAvailable);
+        ClaudeCodeHook.BridgeAvailable || ClaudeCodeHook.PluginAvailable);
 
     public static readonly Detection Everything = new(true, true, true, true);
 }

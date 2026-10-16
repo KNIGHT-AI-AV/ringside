@@ -191,6 +191,16 @@ public sealed class CoreTests
         Assert.Equal(ours, ClaudeCodeHook.IsOurs(new JsonObject { ["type"] = "command", ["command"] = command }));
 
     [Fact]
+    public void Plugin_dirs_keep_everyone_elses_entries()
+    {
+        Assert.Equal(@"C:\other;C:\Ringside", ClaudeCodeHook.AddDir(@"C:\other", @"C:\Ringside", ';'));
+        Assert.Equal(@"C:\other;C:\Ringside", ClaudeCodeHook.AddDir(@"C:\other;C:\Ringside", @"c:\ringside", ';'));
+        Assert.Equal("/home/a/.config/Ringside/claude-plugin", ClaudeCodeHook.AddDir(null, "/home/a/.config/Ringside/claude-plugin", ':'));
+        Assert.Equal(@"C:\other", ClaudeCodeHook.RemoveDir(@"C:\other;C:\Ringside", @"C:\Ringside", ';'));
+        Assert.Null(ClaudeCodeHook.RemoveDir("/r", "/r", ':'));
+    }
+
+    [Fact]
     public void Hook_command_quotes_the_path_and_adds_the_flag_for_the_app()
     {
         Assert.Equal("'C:/x y/ringside-statusline.exe'", ClaudeCodeHook.Command(@"C:\x y\ringside-statusline.exe", false));

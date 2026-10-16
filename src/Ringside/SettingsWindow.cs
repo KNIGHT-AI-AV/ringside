@@ -279,7 +279,7 @@ public sealed class SettingsWindow : CardWindow
     Control ClaudeCodePage()
     {
         var p = new StackPanel();
-        p.Children.Add(Kit.Text("Claude Code hands its status line the exact limits and reset times after every reply. Connecting Ringside there makes Claude's reset times exact instead of estimated. Your own status line keeps working: Ringside runs it and shows its output.", "body"));
+        p.Children.Add(Kit.Text("Claude Code knows your exact limits after every reply. Connecting adds Ringside's small Claude Code plugin, which hands them over in the terminal, the Claude app's Code tab and VS Code, plus a status line link for the terminal. It reads no credentials and sends nothing anywhere. Your own status line keeps working.", "body"));
         p.Children.Add(new Border { Margin = new Thickness(0, 14, 0, 0), Child = Art.Terminal(S.Fill) });
         var status = new TextBlock { Classes = { "hint" }, Margin = new Thickness(0, 12, 0, 8) };
         var button = new Button { Classes = { "ghost" }, HorizontalAlignment = HorizontalAlignment.Left };
@@ -288,10 +288,10 @@ public sealed class SettingsWindow : CardWindow
             bool found = _host.Demo || ClaudeCodeHook.ClaudeCodeFound;
             bool connected = _host.Demo || ClaudeCodeHook.IsConnected;
             button.Content = connected ? "Disconnect" : "Connect";
-            button.IsEnabled = _host.Demo || (found && ClaudeCodeHook.BridgeAvailable);
-            status.Text = connected ? "Connected. Claude's reset times come straight from Claude Code."
+            button.IsEnabled = _host.Demo || (found && (ClaudeCodeHook.BridgeAvailable || ClaudeCodeHook.PluginAvailable));
+            status.Text = connected ? "Connected. Claude's limits come straight from Claude Code. New sessions pick it up."
                 : Os.IsTranslocated ? "Move Ringside to your Applications folder first, then connect."
-                : found ? "Not connected. Claude's reset times are estimated from the Claude app."
+                : found ? "Not connected. Claude's numbers come from the Claude app's own log, which can be hours old."
                 : "Claude Code was not found on " + Paths.ThisComputer + ".";
         }
         button.Click += (_, _) =>

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -32,13 +33,51 @@ public static class ClaudeCodeHook
     public static bool ClaudeCodeFound => Directory.Exists(ConfigDir);
     public static bool BridgeAvailable => BridgeExe is not null && File.Exists(BridgeExe);
 
+    /// <summary>The plugin folder shipped with the app; copied to <see cref="PluginDir"/> on connect.</summary>
+    public static string? PluginSource { get; set; }
+    public static bool PluginAvailable => PluginSource is not null && Directory.Exists(PluginSource);
+
+    /// <summary>
+    /// Where the installed plugin lives: Ringside's own data folder, a path that stays put across
+    /// updates on every platform (an AppImage mounts somewhere new each run).
+    /// </summary>
+    static string PluginDir => Path.Combine(Paths.Data, "claude-plugin");
+    const string PluginEnv = "CLAUDE_CODE_PLUGIN_DIRS";
+    static char Separator => OperatingSystem.IsWindows() ? ';' : ':';
+
+    /// <summary>Either half of the link is in place: the status line or the plugin.</summary>
     public static bool IsConnected
     {
         get
         {
-            try { return IsOurs(Load()?["statusLine"]); }
+            try
+            {
+                var root = Load();
+                return IsOurs(root?["statusLine"]) || HasPlugin(root);
+            }
             catch (Exception) { return false; }
         }
+    }
+
+    static bool HasPlugin(JsonObject? root) =>
+        root?["env"] is JsonObject env && env[PluginEnv] is JsonValue v && v.TryGetValue(out string? dirs) &&
+        dirs.Split(Separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Contains(PluginDir, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Adds a folder to a plugin-dirs list once; keeps everyone else's entries.</summary>
+    internal static string AddDir(string? dirs, string dir, char separator)
+    {
+        var list = (dirs ?? "").Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        if (!list.Contains(dir, StringComparer.OrdinalIgnoreCase)) list.Add(dir);
+        return string.Join(separator, list);
+    }
+
+    /// <summary>Removes a folder from a plugin-dirs list; null when nothing is left.</summary>
+    internal static string? RemoveDir(string? dirs, string dir, char separator)
+    {
+        var list = (dirs ?? "").Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(d => !string.Equals(d, dir, StringComparison.OrdinalIgnoreCase)).ToList();
+        return list.Count == 0 ? null : string.Join(separator, list);
     }
 
     internal static bool IsOurs(JsonNode? line)
@@ -54,24 +93,46 @@ public static class ClaudeCodeHook
     internal static string Command(string exe, bool isApp) =>
         "'" + exe.Replace('\\', '/').Replace("'", "'\\''") + "'" + (isApp ? " --statusline" : "");
 
+    /// <summary>
+    /// Links Claude Code to Ringside in both ways it can: the plugin (live limits after every turn
+    /// in the terminal, the Claude app's Code tab and VS Code) and the status line (the terminal).
+    /// True when at least one is in place.
+    /// </summary>
     public static bool Connect()
     {
         try
         {
-            if (!BridgeAvailable || Paths.Sandboxed) return false;
+            if (Paths.Sandboxed || !ClaudeCodeFound && !PluginAvailable && !BridgeAvailable) return false;
             Directory.CreateDirectory(ConfigDir);
             var root = Load() ?? new JsonObject();
-            var current = root["statusLine"];
-            if (!IsOurs(current))
+            bool any = false;
+
+            if (PluginAvailable)
             {
-                Directory.CreateDirectory(Paths.Data);
-                File.WriteAllText(PreviousPath, current?.ToJsonString() ?? "null");
+                CopyPlugin();
+                var env = root["env"] as JsonObject ?? new JsonObject();
+                string? dirs = env[PluginEnv] is JsonValue v && v.TryGetValue(out string? d) ? d : null;
+                env[PluginEnv] = AddDir(dirs, PluginDir, Separator);
+                root["env"] = env;
+                any = true;
             }
-            var line = new JsonObject { ["type"] = "command", ["command"] = Command(BridgeExe!, BridgeIsApp) };
-            if (current is JsonObject old && old["padding"] is JsonNode padding) line["padding"] = padding.DeepClone();
-            root["statusLine"] = line;
-            Save(root);
-            return true;
+
+            if (BridgeAvailable)
+            {
+                var current = root["statusLine"];
+                if (!IsOurs(current))
+                {
+                    Directory.CreateDirectory(Paths.Data);
+                    File.WriteAllText(PreviousPath, current?.ToJsonString() ?? "null");
+                }
+                var line = new JsonObject { ["type"] = "command", ["command"] = Command(BridgeExe!, BridgeIsApp) };
+                if (current is JsonObject old && old["padding"] is JsonNode padding) line["padding"] = padding.DeepClone();
+                root["statusLine"] = line;
+                any = true;
+            }
+
+            if (any) Save(root);
+            return any;
         }
         catch (Exception e)
         {
@@ -80,14 +141,19 @@ public static class ClaudeCodeHook
         }
     }
 
-    /// <summary>Points an existing link at the bridge's current path, e.g. after the app moved.</summary>
+    /// <summary>
+    /// At every start: refreshes the installed plugin from this version of Ringside, and points
+    /// an existing status line at the bridge's current path, e.g. after the app moved.
+    /// </summary>
     public static void Repair()
     {
         try
         {
-            if (!BridgeAvailable || Paths.Sandboxed) return;
+            if (Paths.Sandboxed) return;
             var root = Load();
-            if (root?["statusLine"] is not JsonObject line || !IsOurs(line)) return;
+            if (root is null) return;
+            if (PluginAvailable && HasPlugin(root)) CopyPlugin();
+            if (!BridgeAvailable || root["statusLine"] is not JsonObject line || !IsOurs(line)) return;
             string want = Command(BridgeExe!, BridgeIsApp);
             if (line["command"]!.GetValue<string>() == want) return;
             line["command"] = want;
@@ -96,22 +162,53 @@ public static class ClaudeCodeHook
         catch (Exception e) { Log.Write("claude code repair failed: " + e.Message); }
     }
 
+    /// <summary>Takes both halves out again and puts back the status line the user had.</summary>
     public static void Disconnect()
     {
         try
         {
             if (Paths.Sandboxed) return;
             var root = Load();
-            if (root is null || !IsOurs(root["statusLine"])) return;
-            JsonNode? previous = File.Exists(PreviousPath) ? JsonNode.Parse(File.ReadAllText(PreviousPath)) : null;
-            if (previous is null) root.Remove("statusLine");
-            else root["statusLine"] = previous;
-            Save(root);
+            if (root is null) return;
+            bool changed = false;
+
+            if (IsOurs(root["statusLine"]))
+            {
+                JsonNode? previous = File.Exists(PreviousPath) ? JsonNode.Parse(File.ReadAllText(PreviousPath)) : null;
+                if (previous is null) root.Remove("statusLine");
+                else root["statusLine"] = previous;
+                changed = true;
+            }
+
+            if (root["env"] is JsonObject env && env[PluginEnv] is JsonValue v && v.TryGetValue(out string? dirs))
+            {
+                string? rest = RemoveDir(dirs, PluginDir, Separator);
+                if (rest != dirs)
+                {
+                    if (rest is null) env.Remove(PluginEnv);
+                    else env[PluginEnv] = rest;
+                    if (env.Count == 0) root.Remove("env");
+                    changed = true;
+                }
+            }
+
+            if (changed) Save(root);
             if (File.Exists(PreviousPath)) File.Delete(PreviousPath);
         }
         catch (Exception e)
         {
             Log.Write("claude code disconnect failed: " + e.Message);
+        }
+    }
+
+    /// <summary>Copies the shipped plugin into Ringside's data folder, replacing an older copy.</summary>
+    static void CopyPlugin()
+    {
+        foreach (var file in Directory.EnumerateFiles(PluginSource!, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(PluginDir, Path.GetRelativePath(PluginSource!, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
         }
     }
 

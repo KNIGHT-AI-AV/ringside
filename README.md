@@ -56,7 +56,7 @@ When a limit is climbing fast, Ringside works out when it will run out at your c
 | macOS 12 or later, Apple silicon | Coming soon, signed and notarized by Apple | It will live in the menu bar. Star or watch the repo to hear when it lands. |
 | Linux, x64 | [Ringside.AppImage](https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside.AppImage) | Make it executable (`chmod +x Ringside.AppImage`) and run it. |
 
-The welcome cards walk you through the rest: what Ringside found on your computer, your view, used or left, colors, alerts and the optional Claude Code link.
+The welcome cards walk you through the rest: what Ringside found on your computer, your view, used or left, colors, alerts and and the Claude Code link for live Claude limits.
 
 <p align="center"><img src="docs/images/onboarding-3.png" width="400" alt="A welcome card: pick your view, with the card, pill and orb side by side"> &nbsp; <img src="docs/images/onboarding-5.png" width="400" alt="A welcome card: make it yours, with color swatches for Claude and Codex"></p>
 
@@ -69,7 +69,7 @@ On Linux, the tray icon needs a desktop with tray support (on GNOME, the AppIndi
 | Limit | Where the number comes from | How fresh |
 |---|---|---|
 | Claude 5-hour and weekly | The Claude desktop app's own usage log | When the app refreshes its usage card, sometimes hours apart |
-| Claude exact reset times | Claude Code's status line (optional, see below) | After every Claude Code reply |
+| Claude 5-hour and weekly, live | Claude Code, through Ringside's plugin and status line link (see below) | After every Claude Code reply |
 | Codex 5-hour and weekly, plan and credits | Codex's local session logs | After every Codex reply |
 
 The big gauge shows the limit closest to running out, or the 5-hour or weekly limit if you pin one. Hover any gauge to see every limit, when it resets and where the number came from.
@@ -91,20 +91,20 @@ The big gauge shows the limit closest to running out, or the 5-hour or weekly li
 
 Settings has a live preview that redraws as you change things: the view, used or left, rings or bars on the card, which meters to show, split or joined, which limit the big gauge follows, countdown or clock reset times, size, opacity, each app's color, color style, alert thresholds, notifications, keep on top, click-through, start at login and updates.
 
-## Exact Claude reset times (optional)
+## Live Claude limits (recommended)
 
-The Claude desktop app records how much of your 5-hour limit you have used, but not when it resets, so Ringside estimates the reset from its samples. If you use Claude Code in a terminal, Ringside can get the exact time and your weekly limit instead.
+The Claude desktop app writes its usage log only now and then, so on its own, Ringside's Claude numbers can be hours old. Claude Code knows your exact limits after every reply, and Ringside can get them from it.
 
-Claude Code hands its status line command your current limits after each reply. With this option on, Ringside points that command at its small bridge (ringside-statusline.exe on Windows, Ringside itself on macOS and Linux), which saves the limits for Ringside and then prints your status line as before.
+Turn on Live Claude limits in the welcome cards or in Settings, Claude Code. Ringside then adds two small things to Claude Code:
 
-- If you already had a status line, it keeps running and showing exactly what it showed before.
-- If you had none, you get a short summary: `5h 26% · resets 2h 29m | 7d 12%`
-- The first time Ringside changes your Claude Code settings.json, it saves a copy next to it as settings.json.ringside-backup.
-- Turning the option off, or uninstalling Ringside, puts your old status line back.
+- A Claude Code plugin that hands Ringside your 5-hour and weekly limits after each turn, in the terminal, the Claude app's Code tab and VS Code. It reads no credentials, makes no network calls and writes one small file that Ringside reads. Its source is in the claude-plugin folder of this repo, and `/plugin` in Claude Code lists it.
+- A status line link for Claude Code in a terminal. If you already had a status line, it keeps running and showing exactly what it showed before. If you had none, you get a short summary: `5h 26% · resets 2h 29m | 7d 12%`
+
+The first time Ringside changes your Claude Code settings.json, it saves a copy next to it as settings.json.ringside-backup. Turning the option off, or uninstalling Ringside, takes both out again and puts your old status line back.
 
 ## Privacy
 
-- Ringside reads three things: the Claude desktop app's usage log (plan-usage-history.json), the limits Claude Code passes to its status line if you connect it, and Codex's session logs. It keeps only the usage numbers.
+- Ringside reads three things: the Claude desktop app's usage log (plan-usage-history.json), the limits Claude Code hands to Ringside's plugin and status line link if you connect them, and Codex's session logs. It keeps only the usage numbers.
 - It never opens your Claude or Codex login files and never contacts Anthropic or OpenAI.
 - It only talks to GitHub, to check for and download updates. You can turn that off.
 - Its settings live in %APPDATA%\Ringside on Windows, ~/Library/Application Support/Ringside on macOS and ~/.config/Ringside on Linux.
@@ -122,7 +122,7 @@ Does it work without the Claude desktop app? Yes, if you connect Claude Code. Wi
 
 I only use Codex (or only Claude). Turn the other meter off in the welcome cards or in Settings. Ringside starts with just the one it finds.
 
-Why does the Claude gauge say "as of yesterday 9:09 PM"? The Claude app writes its usage log only when it refreshes its own usage card, which can be hours apart, and the Claude app's Code tab doesn't run status lines. When the newest reading is more than 35 minutes old, the gauge dims and shows when it was taken. For live Claude numbers, use Claude Code in a terminal with the status line link turned on.
+Why does the Claude gauge say "as of yesterday 9:09 PM"? The Claude app writes its usage log only when it refreshes its own usage card, which can be hours apart, and the Claude app's Code tab doesn't run status lines. When the newest reading is more than 35 minutes old, the gauge dims and shows when it was taken. For live Claude numbers, turn on Live Claude limits.
 
 Does it count API usage? No. It shows plan limits (such as Pro, Max and Team), which is what the 5-hour and weekly windows are.
 

@@ -58,6 +58,7 @@ public sealed class Controller : IHost
             ClaudeCodeHook.BridgeExe = Os.IsTranslocated ? null : Os.AppExecutable;
             ClaudeCodeHook.BridgeIsApp = true;
         }
+        ClaudeCodeHook.PluginSource = Path.Combine(AppContext.BaseDirectory, "claude-plugin");
         ClaudeCodeHook.Repair();
 
         SingleInstance.Listen(msg => Dispatcher.UIThread.Post(() =>

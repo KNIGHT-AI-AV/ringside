@@ -1,0 +1,12 @@
+{
+  "name": "ringside",
+  "version": "2.0.0",
+  "description": "Hands your Claude plan limits (5-hour and weekly) to the Ringside meter after each turn. Reads no credentials and sends nothing anywhere.",
+  "author": {
+    "name": "Knight AI+AV",
+    "url": "https://github.com/KNIGHT-AI-AV/ringside"
+  },
+  "homepage": "https://github.com/KNIGHT-AI-AV/ringside",
+  "repository": "https://github.com/KNIGHT-AI-AV/ringside",
+  "license": "MIT"
+}

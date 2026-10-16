@@ -27,6 +27,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <!-- The Claude Code plugin that keeps Claude's limits live; installed from here on connect. -->
+    <Content Include="..\..\claude-plugin\**\*" LinkBase="claude-plugin" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
   </ItemGroup>
 
