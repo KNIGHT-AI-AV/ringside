@@ -58,7 +58,11 @@ public sealed class Controller : IHost
             ClaudeCodeHook.BridgeExe = Os.IsTranslocated ? null : Os.AppExecutable;
             ClaudeCodeHook.BridgeIsApp = true;
         }
-        ClaudeCodeHook.PluginSource = Path.Combine(AppContext.BaseDirectory, "claude-plugin");
+        // The macOS bundle keeps the plugin in Contents/Resources, outside the signed code folder.
+        string plugin = Path.Combine(AppContext.BaseDirectory, "claude-plugin");
+        if (!Directory.Exists(plugin))
+            plugin = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Resources", "claude-plugin"));
+        ClaudeCodeHook.PluginSource = plugin;
         ClaudeCodeHook.Repair();
 
         SingleInstance.Listen(msg => Dispatcher.UIThread.Post(() =>

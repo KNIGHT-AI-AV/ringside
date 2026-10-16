@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Tests and builds Ringside for Windows, Linux and macOS from one Windows machine.
 
@@ -99,6 +99,8 @@ try {
         $res = Join-Path $bundle 'Contents\Resources'
         New-Item -ItemType Directory -Force $macos, $res | Out-Null
         Copy-Item (Join-Path $publish '*') $macos -Recurse -Force
+        # Contents/MacOS holds code only; a folder of text files there fails strict codesign checks.
+        Move-Item (Join-Path $macos 'claude-plugin') (Join-Path $res 'claude-plugin') -Force
         Copy-Item 'assets/ringside.icns' (Join-Path $res 'Ringside.icns')
         $plist = (Get-Content 'packaging/macos/Info.plist' -Raw).Replace('{VERSION}', $Version)
         [IO.File]::WriteAllText((Join-Path $bundle 'Contents\Info.plist'), $plist.Replace("`r`n", "`n"), (New-Object Text.UTF8Encoding($false)))
