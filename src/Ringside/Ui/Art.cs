@@ -18,7 +18,9 @@ public static class Art
     /// </summary>
     public static Control LiveSurfaces(FillMode fill, Control? meter = null, double surfaceWidth = 132)
     {
-        string reading = fill == FillMode.Used ? "5h 42% · 7d 31%" : "5h 58% left";
+        // Narrow windows show the 5-hour reading alone, so the chip never runs past the edge.
+        bool roomy = surfaceWidth >= 140;
+        string reading = fill == FillMode.Used ? (roomy ? "5h 42% · 7d 31%" : "5h 42%") : "5h 58% left";
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         row.Children.Add(Surface("Terminal", TerminalHead(), TerminalBody(), "#0E0E12", reading, surfaceWidth));
         row.Children.Add(Surface("Claude app", ClaudeHead(), ClaudeBody(), "#1B1917", reading, surfaceWidth));

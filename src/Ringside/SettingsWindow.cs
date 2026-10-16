@@ -97,7 +97,10 @@ public sealed class SettingsWindow : CardWindow
         // The preview shrinks to fit when a view is taller than the stage.
         var fit = new Viewbox { Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly, Child = _previewRow, Margin = new Thickness(6, 4, 6, 18) };
         var stage = Kit.Stage(new Grid { Children = { fit, _sampleNote } }, 236);
-        var scroll = new ScrollViewer { Content = _page, Height = 356, Margin = new Thickness(0, 14, -14, 0), Padding = new Thickness(0, 0, 14, 0) };
+        // The scroll bar sits in the 14 px gutter right of the page. The gutter is padding on the
+        // content itself: the viewer's own Padding does not narrow its content, which let the
+        // text run under the window's edge.
+        var scroll = new ScrollViewer { Content = new Border { Padding = new Thickness(0, 0, 14, 0), Child = _page }, Height = 356, Margin = new Thickness(0, 14, -14, 0) };
 
         var right = new StackPanel { Margin = new Thickness(22, 10, 22, 18), Children = { titleBar, stage, scroll } };
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("200,*"), Children = { sideBorder, right } };
