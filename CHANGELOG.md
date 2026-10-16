@@ -2,9 +2,9 @@
 
 ## 2.0.0 (2026-10-16)
 
-Ringside now runs on Windows and Linux, with macOS on the way, and has a new look and much more to set.
+Ringside now runs on Windows, macOS and Linux, and has a new look and much more to set.
 
-- Linux build, and macOS (Apple silicon) on the way, from one codebase.
+- macOS (Apple silicon) and Linux builds, from one codebase.
 - Live Claude limits: a small Claude Code plugin keeps Claude's numbers current after every turn, in the terminal, the Claude app's Code tab and VS Code. It reads no credentials.
 - Old readings now say when they were taken, such as yesterday 9:09 PM, and never pass for current numbers.
 - New welcome cards that walk through setup with pictures: what Ringside found, your view, used or left, colors, alerts and the Claude Code link.

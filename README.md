@@ -2,11 +2,11 @@
 
 <h1 align="center">Ringside</h1>
 
-<p align="center">Your Claude Code and Codex limits, always in view. Windows and Linux, with macOS on the way. 100% free and open source.</p>
+<p align="center">Your Claude Code and Codex limits, always in view. Windows, macOS and Linux. 100% free and open source.</p>
 
 <p align="center"><a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest"><img src="https://img.shields.io/github/v/release/KNIGHT-AI-AV/ringside?style=flat-square" alt="Latest release"></a> <a href="https://github.com/KNIGHT-AI-AV/ringside/releases"><img src="https://img.shields.io/github/downloads/KNIGHT-AI-AV/ringside/total?style=flat-square" alt="Downloads"></a> <a href="LICENSE"><img src="https://img.shields.io/github/license/KNIGHT-AI-AV/ringside?style=flat-square" alt="MIT license"></a> <img src="https://img.shields.io/badge/Windows%20%7C%20macOS%20%7C%20Linux-8B7CF6?style=flat-square" alt="Windows, macOS and Linux"> <a href="https://github.com/KNIGHT-AI-AV/ringside/stargazers"><img src="https://img.shields.io/github/stars/KNIGHT-AI-AV/ringside?style=flat-square" alt="GitHub stars"></a></p>
 
-<p align="center"><a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-win-Setup.exe"><b>Windows</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside.AppImage"><b>Linux</b></a> &nbsp;·&nbsp; macOS coming soon &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest">All downloads</a></p>
+<p align="center"><a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-win-Setup.exe"><b>Windows</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside.AppImage"><b>Linux</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-osx-arm64.zip"><b>macOS</b></a> &nbsp;·&nbsp; <a href="https://github.com/KNIGHT-AI-AV/ringside/releases/latest">All downloads</a></p>
 
 <p align="center"><img src="docs/images/demo.gif" width="620" alt="Ringside: the rings fill up, flip to show what's left, switch between the card, pill and orb views, change colors, split apart and join again"></p>
 
@@ -53,7 +53,7 @@ When a limit is climbing fast, Ringside works out when it will run out at your c
 | | Download | Then |
 |---|---|---|
 | Windows 10 and 11 | [Ringside-win-Setup.exe](https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-win-Setup.exe) | Run it. It installs for your user only, with no admin prompt. |
-| macOS 12 or later, Apple silicon | Coming soon, signed and notarized by Apple | It will live in the menu bar. Star or watch the repo to hear when it lands. |
+| macOS 12 or later, Apple silicon | [Ringside-osx-arm64.zip](https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside-osx-arm64.zip) | Unzip it, move Ringside to Applications and open it. It is signed and notarized by Apple and lives in the menu bar. |
 | Linux, x64 | [Ringside.AppImage](https://github.com/KNIGHT-AI-AV/ringside/releases/latest/download/Ringside.AppImage) | Make it executable (`chmod +x Ringside.AppImage`) and run it. |
 
 The welcome cards walk you through the rest: what Ringside found on your computer, your view, used or left, colors, alerts and and the Claude Code link for live Claude limits.
