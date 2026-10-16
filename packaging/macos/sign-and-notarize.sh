@@ -6,7 +6,7 @@
 #   NOTARY_KEY=/path/AuthKey_XXXX.p8 NOTARY_KEY_ID=XXXX NOTARY_ISSUER=xxxxxxxx-xxxx-... \
 #   ./sign-and-notarize.sh 2.0.0
 #
-# Signs inside-out (every Mach-O first, then the bundle), never --deep. Writes
+# Signs inside-out (every file in Contents/MacOS first, then the bundle), never --deep. Writes
 # Ringside-<version>-osx-arm64.zip next to the app and prints sha256 for it.
 set -euo pipefail
 
@@ -20,11 +20,11 @@ KC_ARGS=()
 # Readable by everyone, executables executable: a bundle with owner-only files breaks for users.
 chmod -R u+rwX,go+rX "$APP"
 
-# 1. Every Mach-O inside Contents/MacOS except the main executable.
+# 1. Every file inside Contents/MacOS except the main executable, Mach-O or not. codesign treats
+#    everything there as nested code, so the managed .dll and .json files need signatures too
+#    (stored in extended attributes, which ditto keeps). This is Avalonia's documented route.
 while IFS= read -r -d '' f; do
-  if file -b "$f" | grep -q 'Mach-O'; then
-    codesign --force --timestamp --options runtime --entitlements "$ENT" "${KC_ARGS[@]}" --sign "$IDENTITY" "$f"
-  fi
+  codesign --force --timestamp --options runtime --entitlements "$ENT" "${KC_ARGS[@]}" --sign "$IDENTITY" "$f"
 done < <(find "$APP/Contents/MacOS" -type f ! -path "$APP/Contents/MacOS/Ringside" -print0)
 
 # 2. The main executable, then the bundle.
