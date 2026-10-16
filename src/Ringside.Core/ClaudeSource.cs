@@ -16,8 +16,9 @@ public sealed class ClaudeSource
 {
     static readonly TimeSpan FiveHours = TimeSpan.FromHours(5);
     internal const string DesktopText =
-        "From the Claude app's own usage log, which it updates every 15 minutes while it is open. " +
+        "From the Claude app's own usage log, which it updates when it refreshes its usage card, sometimes hours apart. " +
         "The reset time is estimated from those samples.";
+    internal const string StaleText = "Waiting for the Claude app to refresh its usage";
     internal const string FeedText =
         "From Claude Code's status line, which reports exact limits and reset times after each reply.";
 
@@ -72,7 +73,10 @@ public sealed class ClaudeSource
                 feed.Windows.FirstOrDefault(w => w.Label == "Weekly") is { Lapsed: false } weekly)
                 windows.Add(weekly);
         }
-        return new Snapshot("Claude", null, windows, desktop.AsOf, TimeSpan.FromMinutes(35), null, DesktopText);
+        // The Claude app only writes its log while its own usage card refreshes, which can be a day
+        // apart. Say so, rather than showing an old number as if it were current.
+        string? note = now - desktop.AsOf > TimeSpan.FromMinutes(35) ? StaleText : null;
+        return new Snapshot("Claude", null, windows, desktop.AsOf, TimeSpan.FromMinutes(35), note, DesktopText);
     }
 
     // ---- the Claude desktop app's usage log ------------------------------------------

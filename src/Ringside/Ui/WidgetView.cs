@@ -352,22 +352,23 @@ public sealed class WidgetView : UserControl
             _planText.Text = snap.Plan ?? "";
             _plan.IsVisible = snap.Plan is not null;
             bool stale = snap.IsStale(r.Now);
-            _age.Text = snap.AsOf is { } t ? (stale ? "as of " + Fmt.Clock(t) : Fmt.Age(t, r.Now)) : "";
+            _age.Text = snap.AsOf is { } t ? (stale ? Fmt.AsOf(t, r.Now) : Fmt.Age(t, r.Now)) : "";
             _gaugeHost.Opacity = stale ? 0.5 : 1;
             _detailHost.Opacity = stale ? 0.75 : 1;
             Tip(Root, Tooltip(snap, r, s));
             _bars.Children.Clear();
 
             var p = snap.Pick(s.Focus);
-            if (p is null)
+            if (p is null || p.Lapsed)
             {
                 _num.Text = "-";
                 _sign.Text = "";
                 _word.Text = "";
                 _gauge.Value = 0;
                 _gauge.Effect = null;
-                _primary.Text = snap.Note ?? "No data yet";
-                _note.IsVisible = false;
+                _primary.Text = p is { Lapsed: true } ? $"{p.Label} reset since the last reading" : snap.Note ?? "No data yet";
+                _note.Text = p is { Lapsed: true } ? snap.Note ?? "" : "";
+                _note.IsVisible = _note.Text.Length > 0;
                 _forecast.IsVisible = false;
                 return;
             }
@@ -443,7 +444,7 @@ public sealed class WidgetView : UserControl
             var p = snap.Pick(s.Focus);
             Tip(Root, Tooltip(snap, r, s));
             Root.Opacity = snap.IsStale(r.Now) ? 0.6 : 1;
-            if (p is null)
+            if (p is null || p.Lapsed)
             {
                 _num.Text = "-";
                 _sign.Text = _word.Text = "";
@@ -520,7 +521,7 @@ public sealed class WidgetView : UserControl
                 var color = p is null ? BaseColor(_providers[i], s) : SolidColor(_providers[i], p.Percent, s);
                 _lines[i].Foreground = new SolidColorBrush(_providers.Count > 1 ? color : Brand.Fg1);
                 if (_providers.Count == 1 && _name is not null) _name.Foreground = new SolidColorBrush(BaseColor(_providers[i], s));
-                if (p is null)
+                if (p is null || p.Lapsed)
                 {
                     _nums[i].Text = "-";
                     _rings[i].Value = 0;

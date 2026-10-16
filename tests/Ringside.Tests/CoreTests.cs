@@ -49,6 +49,14 @@ public sealed class CoreTests
     }
 
     [Fact]
+    public void Old_readings_say_which_day()
+    {
+        var now = new DateTimeOffset(2026, 10, 15, 17, 30, 0, TimeSpan.FromHours(-7));
+        Assert.StartsWith("as of yesterday ", Fmt.AsOf(now.AddHours(-20), now));
+        Assert.DoesNotContain("yesterday", Fmt.AsOf(now.AddHours(-2), now));
+    }
+
+    [Fact]
     public void Settings_from_1x_turn_compact_into_the_pill_view()
     {
         var s = Settings.Parse("""{"OnboardingDone":true,"Compact":true,"Scale":5,"ShowClaude":false,"ShowCodex":false}""");

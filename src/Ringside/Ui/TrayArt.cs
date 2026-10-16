@@ -32,7 +32,7 @@ public static class TrayArt
         var c = new Point(cx, cy);
         ctx.DrawEllipse(null, new Pen(track, width), c, radius, radius);
         var w = r?.Of(provider).Pick(s.Focus);
-        if (w is null) return;
+        if (w is null || w.Lapsed) return;
         double v = Display.Shown(w.Percent, s.Fill);
         if (v < 0.5) return;
         var pen = new Pen(Brand.Solid(Palette.Solid(provider, w.Percent, s)), width, lineCap: PenLineCap.Round);
@@ -54,7 +54,7 @@ public static class TrayArt
         string Part(string p)
         {
             var w = r?.Of(p).Pick(s.Focus);
-            return w is null ? $"{p} -" : $"{p} {Display.Amount(w.Percent, s.Fill)}";
+            return w is null || w.Lapsed ? $"{p} -" : $"{p} {Display.Amount(w.Percent, s.Fill)}";
         }
         var parts = new System.Collections.Generic.List<string>();
         if (s.ShowClaude) parts.Add(Part("Claude"));

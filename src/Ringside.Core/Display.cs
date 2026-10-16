@@ -81,6 +81,17 @@ public static class Fmt
         };
     }
 
+    /// <summary>When an old reading was taken: "as of 3:12 PM", "as of yesterday 9:09 PM" or "as of Tue 9:09 PM".</summary>
+    public static string AsOf(DateTimeOffset t, DateTimeOffset now)
+    {
+        var day = t.ToLocalTime().Date;
+        var today = now.ToLocalTime().Date;
+        if (day == today) return "as of " + Clock(t);
+        if (day == today.AddDays(-1)) return "as of yesterday " + Clock(t);
+        if (today - day < TimeSpan.FromDays(7)) return $"as of {Day(t)} {Clock(t)}";
+        return "as of " + t.ToLocalTime().ToString("MMM d", CultureInfo.CurrentCulture);
+    }
+
     public static string Age(DateTimeOffset t, DateTimeOffset now)
     {
         var d = now - t;

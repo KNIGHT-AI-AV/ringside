@@ -68,7 +68,7 @@ On Linux, the tray icon needs a desktop with tray support (on GNOME, the AppIndi
 
 | Limit | Where the number comes from | How fresh |
 |---|---|---|
-| Claude 5-hour and weekly | The Claude desktop app's own usage log | Every 15 minutes while the app is open |
+| Claude 5-hour and weekly | The Claude desktop app's own usage log | When the app refreshes its usage card, sometimes hours apart |
 | Claude exact reset times | Claude Code's status line (optional, see below) | After every Claude Code reply |
 | Codex 5-hour and weekly, plan and credits | Codex's local session logs | After every Codex reply |
 
@@ -122,7 +122,7 @@ Does it work without the Claude desktop app? Yes, if you connect Claude Code. Wi
 
 I only use Codex (or only Claude). Turn the other meter off in the welcome cards or in Settings. Ringside starts with just the one it finds.
 
-Why does the Claude gauge say "as of 3:12 PM"? The Claude app only writes its usage log while it is open. When the newest reading is more than 35 minutes old, the gauge dims and shows when it was taken.
+Why does the Claude gauge say "as of yesterday 9:09 PM"? The Claude app writes its usage log only when it refreshes its own usage card, which can be hours apart, and the Claude app's Code tab doesn't run status lines. When the newest reading is more than 35 minutes old, the gauge dims and shows when it was taken. For live Claude numbers, use Claude Code in a terminal with the status line link turned on.
 
 Does it count API usage? No. It shows plan limits (such as Pro, Max and Team), which is what the 5-hour and weekly windows are.
 
