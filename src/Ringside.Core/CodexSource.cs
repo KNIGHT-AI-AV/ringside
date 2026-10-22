@@ -71,20 +71,22 @@ public sealed class CodexSource
         return Build(_last, now);
     }
 
+    // Codex files a thread's log under the day the thread started and keeps appending to it
+    // when the thread is resumed, days or weeks later, so the log written last can sit in any
+    // day folder. Rank every plain log by its last write (the directory listing carries it).
+    // Logs idle for a week are compressed to .jsonl.zst; they are not read.
+    static readonly EnumerationOptions AllLogs = new()
+    {
+        RecurseSubdirectories = true,
+        IgnoreInaccessible = true,
+        MatchType = MatchType.Simple,
+    };
+
     List<string> RecentFiles()
     {
         if (!Directory.Exists(_root)) return new List<string>();
-        var days = new List<string>();
-        foreach (var y in Directory.EnumerateDirectories(_root).OrderByDescending(x => x, StringComparer.Ordinal))
-        foreach (var m in Directory.EnumerateDirectories(y).OrderByDescending(x => x, StringComparer.Ordinal))
-        foreach (var d in Directory.EnumerateDirectories(m).OrderByDescending(x => x, StringComparer.Ordinal))
-        {
-            days.Add(d);
-            if (days.Count >= 10) goto Done;
-        }
-        Done:
-        return days.SelectMany(d => Directory.EnumerateFiles(d, "*.jsonl"))
-            .Select(f => new FileInfo(f))
+        return new DirectoryInfo(_root).EnumerateFiles("*.jsonl", AllLogs)
+            .Where(f => f.Name.EndsWith(".jsonl", StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(f => f.LastWriteTimeUtc)
             .Select(f => f.FullName)
             .ToList();

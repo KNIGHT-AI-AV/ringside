@@ -162,6 +162,50 @@ public sealed class SourceTests : IDisposable
     }
 
     [Fact]
+    public void Codex_follows_a_resumed_thread_whose_log_sits_in_an_older_day_folder()
+    {
+        // Codex appends a resumed thread to the log in the folder of the day the thread
+        // started, so the log written last can sit behind many newer day folders.
+        var now = DateTimeOffset.UtcNow;
+        var root = Path.Combine(_dir, "sessions");
+        for (int day = 10; day <= 21; day++)
+        {
+            var idle = Write(Path.Combine("sessions", "2026", "10", day.ToString("00"), $"rollout-idle-{day}.jsonl"),
+                Line(10, now.AddDays(-3), now.AddDays(4)));
+            File.SetLastWriteTimeUtc(idle, now.UtcDateTime.AddDays(-3).AddMinutes(day));
+        }
+        var resumed = Write(Path.Combine("sessions", "2026", "09", "26", "rollout-resumed.jsonl"),
+            Line(63, now.AddMinutes(-2), now.AddDays(4)));
+        File.SetLastWriteTimeUtc(resumed, now.UtcDateTime.AddMinutes(-2));
+
+        var s = new CodexSource(root).Read(now);
+        Assert.Equal(63, s.Primary!.Percent);
+        Assert.Equal(now.AddMinutes(-2).ToUnixTimeSeconds(), s.AsOf!.Value.ToUnixTimeSeconds());
+    }
+
+    [Fact]
+    public void Codex_leaves_compressed_logs_alone()
+    {
+        // Codex compresses logs untouched for a week to .jsonl.zst; they are not text and
+        // must never be read as a log, even when they are the newest file.
+        var now = DateTimeOffset.UtcNow;
+        var root = Path.Combine(_dir, "sessions");
+        var plain = Write(Path.Combine("sessions", "2026", "10", "21", "rollout-live.jsonl"),
+            Line(41, now.AddMinutes(-5), now.AddDays(4)));
+        File.SetLastWriteTimeUtc(plain, now.UtcDateTime.AddMinutes(-5));
+        var packed = Path.Combine(root, "2026", "10", "22", "rollout-old.jsonl.zst");
+        Directory.CreateDirectory(Path.GetDirectoryName(packed)!);
+        File.WriteAllBytes(packed, new byte[] { 0x28, 0xB5, 0x2F, 0xFD, 0x00, 0x22, 0x72, 0x61 });
+
+        Assert.Equal(41, new CodexSource(root).Read(now).Primary!.Percent);
+    }
+
+    static string Line(double pct, DateTimeOffset at, DateTimeOffset reset) =>
+        "{\"timestamp\":\"" + at.ToString("o") + "\",\"type\":\"event_msg\",\"payload\":{\"type\":\"token_count\",\"rate_limits\":" +
+        "{\"limit_id\":\"codex\",\"primary\":{\"used_percent\":" + pct.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+        ",\"window_minutes\":10080,\"resets_at\":" + reset.ToUnixTimeSeconds() + "},\"secondary\":null}}}\n";
+
+    [Fact]
     public void Codex_without_logs_waits_politely()
     {
         var s = new CodexSource(Path.Combine(_dir, "missing")).Read(DateTimeOffset.UtcNow);
