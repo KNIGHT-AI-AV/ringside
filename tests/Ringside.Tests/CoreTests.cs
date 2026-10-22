@@ -206,6 +206,10 @@ public sealed class CoreTests
     {
         var source = Directory.CreateTempSubdirectory().FullName;
         ClaudeCodeHook.PluginSource = source;
+        // A plugin-dirs value in the runner's own environment (any run inside Claude Code) is kept
+        // on purpose, so start this test from none and put the runner's back afterwards.
+        var inherited = Environment.GetEnvironmentVariable("CLAUDE_CODE_PLUGIN_DIRS");
+        Environment.SetEnvironmentVariable("CLAUDE_CODE_PLUGIN_DIRS", null);
         try
         {
             var linked = JsonNode.Parse("""{"statusLine":{"type":"command","command":"'C:/x/ringside-statusline.exe'"}}""")!.AsObject();
@@ -220,6 +224,32 @@ public sealed class CoreTests
         }
         finally
         {
+            Environment.SetEnvironmentVariable("CLAUDE_CODE_PLUGIN_DIRS", inherited);
+            ClaudeCodeHook.PluginSource = null;
+            Directory.Delete(source);
+        }
+    }
+
+    [Fact]
+    public void Plugin_dirs_from_the_users_environment_are_kept_when_linking()
+    {
+        var source = Directory.CreateTempSubdirectory().FullName;
+        ClaudeCodeHook.PluginSource = source;
+        var inherited = Environment.GetEnvironmentVariable("CLAUDE_CODE_PLUGIN_DIRS");
+        var theirs = Path.Combine(source, "their-plugin");
+        Environment.SetEnvironmentVariable("CLAUDE_CODE_PLUGIN_DIRS", theirs);
+        try
+        {
+            var linked = JsonNode.Parse("""{"statusLine":{"type":"command","command":"'C:/x/ringside-statusline.exe'"}}""")!.AsObject();
+            Assert.True(ClaudeCodeHook.Refresh(linked));
+            var dirs = linked["env"]!["CLAUDE_CODE_PLUGIN_DIRS"]!.GetValue<string>().Split(Path.PathSeparator);
+            Assert.Equal(2, dirs.Length);
+            Assert.Equal(theirs, dirs[0]);
+            Assert.EndsWith("claude-plugin", dirs[1]);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CLAUDE_CODE_PLUGIN_DIRS", inherited);
             ClaudeCodeHook.PluginSource = null;
             Directory.Delete(source);
         }
