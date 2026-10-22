@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2 (2026-10-22)
+
+- Codex: Ringside now keeps up with a Codex thread you come back to over several days. Codex keeps adding a resumed thread to the log for the day the thread started, and Ringside only looked at logs from recent days, so the Codex meter could stop moving and keep showing an older reading. Ringside now reads whichever log Codex wrote most recently.
+
 ## 2.0.1 (2026-10-16)
 
 - The Claude app's usage log is written only now and then, often right as a limit fills up. Once the 5-hour window could have reset since its last entry, Ringside now shows a dash and says the window may have reset, instead of an old 100%. Turn on Live Claude limits for live numbers.
