@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.3 (2026-10-26)
 
 - Updates get through even when GitHub is busy. If GitHub's API turns the update check away, which it can do when many people share one internet connection, Ringside now checks the latest release's own download link instead.
 - After Ringside updates itself, it says so once: a notification names the new version, and clicking it opens what's new.
