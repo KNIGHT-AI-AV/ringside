@@ -24,6 +24,8 @@ public enum FocusWindow { Tightest, FiveHour, Weekly }
 public sealed class Settings
 {
     public int Version { get; set; } = 2;
+    /// <summary>The Ringside version that last ran, so an update can say what's new once.</summary>
+    public string? LastRunVersion { get; set; }
     public bool OnboardingDone { get; set; }
     public bool HintShown { get; set; }
 

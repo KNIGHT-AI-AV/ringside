@@ -174,8 +174,12 @@ public sealed class Updates
 {
     public const string RepoUrl = "https://github.com/KNIGHT-AI-AV/ringside";
     public const string ReleasesUrl = RepoUrl + "/releases/latest";
+    // The latest release's own files, served without GitHub's API and its hourly limit per address.
+    const string LatestDownloads = RepoUrl + "/releases/latest/download/";
 
     readonly UpdateManager? _mgr;
+    readonly UpdateManager? _fallback;
+    UpdateManager? _found;
     UpdateInfo? _pending;
     bool _checking;
 
@@ -189,16 +193,28 @@ public sealed class Updates
         try
         {
             var mgr = new UpdateManager(new GithubSource(RepoUrl, null, false));
-            if (mgr.IsInstalled) _mgr = mgr; // a dev build has nothing to update
+            if (mgr.IsInstalled) // a dev build has nothing to update
+            {
+                _mgr = mgr;
+                _fallback = new UpdateManager(new SimpleWebSource(LatestDownloads));
+            }
         }
         catch (Exception e) { Log.Write("updater unavailable: " + e.Message); }
     }
 
     public string? PendingVersion => _pending?.TargetFullRelease.Version.ToString();
     public string? AvailableVersion { get; private set; }
+    /// <summary>When the last check got an answer from GitHub.</summary>
+    public DateTimeOffset? LastChecked { get; private set; }
+    /// <summary>Why the last check failed, or null when it got an answer.</summary>
+    public string? LastError { get; private set; }
 
     public static string CurrentVersion =>
         typeof(Updates).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "dev";
+
+    /// <summary>The release notes for a version, or the latest release for a dev build.</summary>
+    public static string NotesUrl(string version) =>
+        Version.TryParse(version, out _) ? RepoUrl + "/releases/tag/v" + version : ReleasesUrl;
 
     /// <summary>Velopack updates, or for an app bundle it did not install, a version check.</summary>
     public bool Supported => _mgr is not null || Os.MacBundle is not null;
@@ -213,38 +229,72 @@ public sealed class Updates
             if (_mgr is not null)
             {
                 if (_pending is not null) return;
-                var info = await _mgr.CheckForUpdatesAsync();
+                var (mgr, info) = await FindUpdateAsync();
+                LastChecked = DateTimeOffset.Now;
+                LastError = null;
                 if (info is null) return;
-                await _mgr.DownloadUpdatesAsync(info);
+                await mgr.DownloadUpdatesAsync(info);
+                _found = mgr;
                 _pending = info;
+                Log.Write($"update {info.TargetFullRelease.Version} downloaded; it installs on restart");
                 Ready?.Invoke(info.TargetFullRelease.Version.ToString());
             }
             else if (Os.MacBundle is not null)
             {
                 var latest = await LatestTagAsync();
+                LastChecked = DateTimeOffset.Now;
+                LastError = null;
                 if (latest is not null && Version.TryParse(latest, out var v) && Version.TryParse(CurrentVersion, out var cur) && v > cur &&
                     AvailableVersion != latest)
                 {
                     AvailableVersion = latest;
+                    Log.Write($"update {latest} is available");
                     Available?.Invoke(latest);
                 }
             }
         }
-        catch (Exception e) { Log.Write("update check failed: " + e.Message); }
+        catch (Exception e)
+        {
+            LastError = e.Message;
+            Log.Write("update check failed: " + e.Message);
+        }
         finally { _checking = false; }
+    }
+
+    /// <summary>Asks GitHub's API first, then the latest release's download link if the API says no.</summary>
+    async Task<(UpdateManager Mgr, UpdateInfo? Info)> FindUpdateAsync()
+    {
+        try { return (_mgr!, await _mgr!.CheckForUpdatesAsync()); }
+        catch (Exception e) when (_fallback is not null)
+        {
+            Log.Write("update check through GitHub's API failed, trying the release link: " + e.Message);
+            return (_fallback, await _fallback.CheckForUpdatesAsync());
+        }
     }
 
     static async Task<string?> LatestTagAsync()
     {
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd("Ringside/" + CurrentVersion);
-        using var doc = JsonDocument.Parse(await http.GetStringAsync("https://api.github.com/repos/KNIGHT-AI-AV/ringside/releases/latest"));
-        return doc.RootElement.TryGetProperty("tag_name", out var tag) ? tag.GetString()?.TrimStart('v') : null;
+        try
+        {
+            using var doc = JsonDocument.Parse(await http.GetStringAsync("https://api.github.com/repos/KNIGHT-AI-AV/ringside/releases/latest"));
+            return doc.RootElement.TryGetProperty("tag_name", out var tag) ? tag.GetString()?.TrimStart('v') : null;
+        }
+        catch (Exception e)
+        {
+            // The latest-release page redirects to its tag, and it has no hourly limit.
+            Log.Write("version check through GitHub's API failed, trying the release page: " + e.Message);
+            using var plain = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20) };
+            plain.DefaultRequestHeaders.UserAgent.ParseAdd("Ringside/" + CurrentVersion);
+            using var response = await plain.GetAsync(ReleasesUrl);
+            return AppVersion.FromReleaseUrl(response.Headers.Location) ?? throw new InvalidOperationException("GitHub gave no latest release");
+        }
     }
 
     public void RestartNow()
     {
-        if (_mgr is not null && _pending is not null) _mgr.ApplyUpdatesAndRestart(_pending.TargetFullRelease);
+        if (_found is not null && _pending is not null) _found.ApplyUpdatesAndRestart(_pending.TargetFullRelease);
         else if (AvailableVersion is not null) Os.OpenUrl(ReleasesUrl);
     }
 
@@ -253,8 +303,8 @@ public sealed class Updates
     {
         try
         {
-            if (_mgr is not null && _pending is not null)
-                _mgr.WaitExitThenApplyUpdates(_pending.TargetFullRelease, silent: true, restart: false);
+            if (_found is not null && _pending is not null)
+                _found.WaitExitThenApplyUpdates(_pending.TargetFullRelease, silent: true, restart: false);
         }
         catch (Exception e) { Log.Write("update apply failed: " + e.Message); }
     }

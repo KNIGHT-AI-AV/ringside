@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Updates get through even when GitHub is busy. If GitHub's API turns the update check away, which it can do when many people share one internet connection, Ringside now checks the latest release's own download link instead.
+- After Ringside updates itself, it says so once: a notification names the new version, and clicking it opens what's new.
+- Settings, About has a What's new button, and Check for updates now says when it couldn't reach GitHub instead of saying you're up to date.
+
 ## 2.0.2 (2026-10-22)
 
 - Codex: Ringside now keeps up with a Codex thread you come back to over several days. Codex keeps adding a resumed thread to the log for the day the thread started, and Ringside only looked at logs from recent days, so the Codex meter could stop moving and keep showing an older reading. Ringside now reads whichever log Codex wrote most recently.

@@ -104,7 +104,7 @@ static class Program
             Save($"onboarding-{i + 1}", Desk(Detach(o)));
             o.Close();
         }
-        foreach (var page in new[] { SettingsWindow.Page.Look, SettingsWindow.Page.Colors, SettingsWindow.Page.Alerts, SettingsWindow.Page.ClaudeCode })
+        foreach (var page in new[] { SettingsWindow.Page.Look, SettingsWindow.Page.Colors, SettingsWindow.Page.Alerts, SettingsWindow.Page.ClaudeCode, SettingsWindow.Page.About })
         {
             var w = new SettingsWindow(new DemoHost(Look(), climbing), page, animate: false);
             Save("settings-" + page.ToString().ToLowerInvariant(), Desk(Detach(w)));
@@ -114,6 +114,8 @@ static class Program
         Save("quick-panel", Desk(Detach(panel)));
         var toast = new Toast("Claude 5-hour limit may run out soon", "At this pace it runs out around 3:12 PM, before it resets at 4:34 PM.", Brand.ToColor(Palette.Amber), null);
         Save("toast", Desk(Detach(toast)));
+        var updated = new Toast("Ringside updated to 2.0.3", "Click to see what's new.", Brand.Accent, null);
+        Save("toast-updated", Desk(Detach(updated)));
     }
 
     /// <summary>Takes a window's content out so it can be drawn on the backdrop.</summary>

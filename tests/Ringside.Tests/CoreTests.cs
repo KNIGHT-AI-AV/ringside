@@ -265,4 +265,33 @@ public sealed class CoreTests
         Assert.Equal(@"'/home/a$(x)/it'\''s/Ringside.AppImage' --statusline",
             ClaudeCodeHook.Command("/home/a$(x)/it's/Ringside.AppImage", true));
     }
+
+    [Theory]
+    [InlineData("2.0.2", "2.0.3", true, true)]
+    [InlineData("2.0.3", "2.0.3", true, false)]
+    [InlineData("2.1.0", "2.0.3", true, false)]   // went back a version: nothing new to show
+    [InlineData(null, "2.0.3", true, true)]       // settings from 2.0.2 or earlier
+    [InlineData(null, "2.0.3", false, false)]     // a fresh install gets the welcome cards instead
+    [InlineData("2.0.2", "dev", true, false)]     // a dev build
+    [InlineData("junk", "2.0.3", true, false)]
+    public void What_is_new_shows_once_after_an_update(string? lastRun, string current, bool hadSettings, bool expected) =>
+        Assert.Equal(expected, AppVersion.JustUpdated(lastRun, current, hadSettings));
+
+    [Theory]
+    [InlineData("https://github.com/KNIGHT-AI-AV/ringside/releases/tag/v2.0.3", "2.0.3")]
+    [InlineData("https://github.com/KNIGHT-AI-AV/ringside/releases/tag/2.1.0", "2.1.0")]
+    [InlineData("/KNIGHT-AI-AV/ringside/releases/tag/v2.0.3/", "2.0.3")]
+    [InlineData("https://github.com/KNIGHT-AI-AV/ringside/releases", null)]
+    [InlineData("https://github.com/KNIGHT-AI-AV/ringside/releases/tag/nightly", null)]
+    public void Latest_release_page_redirect_names_the_version(string url, string? expected) =>
+        Assert.Equal(expected, AppVersion.FromReleaseUrl(new Uri(url, UriKind.RelativeOrAbsolute)));
+
+    [Fact]
+    public void Settings_remember_the_version_that_last_ran()
+    {
+        var s = Settings.Parse("""{"Version":2,"OnboardingDone":true,"LastRunVersion":"2.0.3"}""");
+        Assert.Equal("2.0.3", s.LastRunVersion);
+        Assert.Contains("\"LastRunVersion\"", s.ToJson());
+        Assert.Null(Settings.Parse("""{"Version":2,"OnboardingDone":true}""").LastRunVersion);
+    }
 }

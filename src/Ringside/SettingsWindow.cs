@@ -342,14 +342,23 @@ public sealed class SettingsWindow : CardWindow
             await u.CheckAsync();
             status.Text = u.PendingVersion is { } v ? $"Version {v} is ready. It installs when Ringside restarts."
                 : u.AvailableVersion is { } a ? $"Version {a} is available on GitHub."
+                : u.LastError is not null ? "Couldn't reach GitHub just now. Ringside tries again on its own every few hours."
                 : "You have the latest version.";
             check.IsEnabled = true;
         };
         p.Children.Add(new StackPanel
         {
             Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 16, 0, 0),
-            Children = { check, Kit.Ghost("View on GitHub", () => Os.OpenUrl(Updates.RepoUrl)), Kit.Ghost("★ Star it", () => Os.OpenUrl(Updates.RepoUrl + "/stargazers")) },
+            Children =
+            {
+                check,
+                Kit.Ghost("What's new", () => Os.OpenUrl(Updates.NotesUrl(Updates.CurrentVersion))),
+                Kit.Ghost("View on GitHub", () => Os.OpenUrl(Updates.RepoUrl)),
+                Kit.Ghost("★ Star it", () => Os.OpenUrl(Updates.RepoUrl + "/stargazers")),
+            },
         });
+        if (_host.Updates?.LastChecked is { } at)
+            status.Text = $"Last checked {at:t}.";
         p.Children.Add(status);
 
         p.Children.Add(Kit.Section("Uninstall"));

@@ -94,11 +94,16 @@ public sealed class Controller : IHost
 
         BuildTray();
         bool upgraded = _s.UpgradedFromV1;
+        string current = Updates.CurrentVersion;
+        bool updated = !upgraded && AppVersion.JustUpdated(_s.LastRunVersion, current, _s.OnboardingDone);
+        if (Version.TryParse(current, out _)) _s.LastRunVersion = current;
         if (_s.OnboardingDone) StartMeters();
         else ShowOnboarding();
-        _s.Save(); // writes Version, so the welcome back happens once
+        _s.Save(); // writes Version and LastRunVersion, so each welcome back happens once
         if (upgraded)
             Notify("Ringside 2.0 is here", "New views, used or left, your own colors and more. Click for the tour.", Brand.Accent, ShowOnboarding);
+        else if (updated)
+            Notify($"Ringside updated to {current}", "Click to see what's new.", Brand.Accent, () => Os.OpenUrl(Updates.NotesUrl(current)));
     }
 
     // ---- meters -----------------------------------------------------------------------
