@@ -108,7 +108,7 @@ The first time Ringside changes your Claude Code settings.json, it saves a copy 
 
 - Ringside reads three things: the Claude desktop app's usage log (plan-usage-history.json), the limits Claude Code hands to Ringside's plugin and status line link if you connect them, and Codex's session logs. It keeps only the usage numbers.
 - It never opens your Claude or Codex login files and never contacts Anthropic or OpenAI.
-- It only talks to GitHub, to check for and download updates. You can turn that off.
+- It only talks to GitHub, to check for and download updates, about every 6 hours. GitHub sees your IP address and may see Ringside's version and your system type, such as Windows x64. Ringside sends no usage numbers, no account details and no ID. You can turn update checks off in Settings.
 - Its settings live in %APPDATA%\Ringside on Windows, ~/Library/Application Support/Ringside on macOS and ~/.config/Ringside on Linux.
 
 ## Uninstall
