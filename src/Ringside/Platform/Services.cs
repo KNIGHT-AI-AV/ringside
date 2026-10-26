@@ -209,6 +209,11 @@ public sealed class Updates
     /// <summary>Why the last check failed, or null when it got an answer.</summary>
     public string? LastError { get; private set; }
 
+    /// <summary>What the update check switch says it sends, in the welcome cards and in Settings.</summary>
+    public static string CheckDescription =>
+        "Asks GitHub for new versions every few hours. GitHub sees your IP address and may see Ringside's version and your system type. " +
+        "Nothing about your usage leaves " + Paths.ThisComputer + ".";
+
     public static string CurrentVersion =>
         typeof(Updates).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "dev";
 

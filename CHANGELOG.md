@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.4 (2026-10-26)
+
+- The welcome card now says your usage stays on your computer. It used to say nothing leaves it, but update checks do reach GitHub.
+- Check for updates now says what GitHub sees: your IP address, and maybe Ringside's version and your system type.
+
 ## 2.0.3 (2026-10-26)
 
 - Updates get through even when GitHub is busy. If GitHub's API turns the update check away, which it can do when many people share one internet connection, Ringside now checks the latest release's own download link instead.

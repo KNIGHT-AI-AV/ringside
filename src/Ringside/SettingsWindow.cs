@@ -264,7 +264,7 @@ public sealed class SettingsWindow : CardWindow
         if (Os.SupportsFullScreenHide)
             p.Children.Add(Kit.Switch("Hide over full-screen apps", "Steps aside for games, videos and presentations.", S.HideOverFullScreen, on => Set(s => s.HideOverFullScreen = on)));
         p.Children.Add(Kit.Switch(Os.LoginItemLabel, null, _host.Demo || AutoStart.Enabled, on => { if (!_host.Demo) AutoStart.Set(on); }));
-        p.Children.Add(Kit.Switch("Check for updates", "Asks GitHub for new versions now and then. Nothing about your usage leaves " + Paths.ThisComputer + ".", S.CheckForUpdates, on => Set(s => s.CheckForUpdates = on)));
+        p.Children.Add(Kit.Switch("Check for updates", Updates.CheckDescription, S.CheckForUpdates, on => Set(s => s.CheckForUpdates = on)));
 
         p.Children.Add(Kit.Section("Layout"));
         p.Children.Add(new StackPanel

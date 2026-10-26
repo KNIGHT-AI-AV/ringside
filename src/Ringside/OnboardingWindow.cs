@@ -175,7 +175,7 @@ public sealed class OnboardingWindow : CardWindow
             },
         };
         hero.Margin = new Thickness(0, 10, 0, 0);
-        var chips = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { Art.Chip("100% free"), Art.Chip("Open source"), Art.Chip("No account"), Art.Chip("Nothing leaves " + Paths.ThisComputer) } };
+        var chips = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { Art.Chip("100% free"), Art.Chip("Open source"), Art.Chip("No account"), Art.Chip("Your usage stays on " + Paths.ThisComputer) } };
         return Page(hero, "Meet Ringside",
             $"Your Claude and Codex limits, always in view. Ringside reads the usage numbers your apps already keep on {Paths.ThisComputer}. It never reads your login and never sends your usage anywhere.",
             chips, heroHeight: 330);
@@ -337,7 +337,7 @@ public sealed class OnboardingWindow : CardWindow
             {
                 hook,
                 Kit.Switch(Os.LoginItemLabel, null, _login, on => _login = on),
-                Kit.Switch("Check for updates", "Asks GitHub for new versions now and then.", _updates, on => _updates = on),
+                Kit.Switch("Check for updates", Updates.CheckDescription, _updates, on => _updates = on),
             },
         };
         var meter = Preview(Look(s => s.View = ViewKind.Orb), Both, scale: 0.55);
