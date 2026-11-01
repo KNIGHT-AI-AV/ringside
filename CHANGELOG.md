@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.5 (2026-11-01)
+
+- Windows: Live Claude limits work again with the Claude app from the Microsoft Store. If Ringside was ever started from a Claude Code session in that app's Code tab, Claude Code then saved your limits where Ringside did not look, and Ringside's Claude Code plugin could stop loading. The meter fell back to the Claude app's usage log, which updates only now and then and guesses the reset time.
+- Ringside now finds your limits wherever Claude Code saves them, and removes the old plugin copy that kept the plugin from loading. Nothing to set up: the fix takes effect when Ringside starts.
+
 ## 2.0.4 (2026-10-26)
 
 - The welcome card now says your usage stays on your computer. It used to say nothing leaves it, but update checks do reach GitHub.
