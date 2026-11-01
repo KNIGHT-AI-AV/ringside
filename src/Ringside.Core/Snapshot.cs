@@ -61,6 +61,31 @@ public static class Paths
     public static string StatusLineFeed => Path.Combine(Data, "claude-statusline.json");
 
     /// <summary>
+    /// The private AppData\Roaming of each Claude desktop app installed from the Microsoft Store.
+    /// The app and everything it starts (Claude Code in its Code tab, and whatever that runs) write
+    /// new folders there instead of to the real AppData, and from then on see that copy in place of
+    /// the real folder of the same name.
+    /// </summary>
+    public static List<string> ClaudeStoreRoaming(string? packages = null)
+    {
+        if (packages is null)
+        {
+            if (!OperatingSystem.IsWindows()) return new List<string>();
+            packages = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages");
+        }
+        try
+        {
+            return Directory.Exists(packages)
+                ? Directory.EnumerateDirectories(packages, "*Claude*").Select(d => Path.Combine(d, "LocalCache", "Roaming")).ToList()
+                : new List<string>();
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return new List<string>();
+        }
+    }
+
+    /// <summary>
     /// A test run with its own data folder (RINGSIDE_DATA). It may read everything but must
     /// change nothing outside that folder: no Claude Code link, no login item.
     /// </summary>

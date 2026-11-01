@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
@@ -238,11 +239,28 @@ public static class ClaudeCodeHook
     /// <summary>Copies the shipped plugin into Ringside's data folder, replacing an older copy.</summary>
     static void CopyPlugin()
     {
+        if (!Paths.Sandboxed) ClearStoreCopies(Paths.ClaudeStoreRoaming());
         foreach (var file in Directory.EnumerateFiles(PluginSource!, "*", SearchOption.AllDirectories))
         {
             var target = Path.Combine(PluginDir, Path.GetRelativePath(PluginSource!, file));
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             File.Copy(file, target, overwrite: true);
+        }
+    }
+
+    /// <summary>
+    /// Removes the plugin copy that Ringside, once started from Claude Code inside the Claude app
+    /// from the Store, left in that app's own AppData (see <see cref="Paths.ClaudeStoreRoaming"/>).
+    /// Claude Code there loads that stale copy in place of this one, finds its module outside the
+    /// folder it was told to load, and refuses the plugin, so the meter stops hearing from it.
+    /// Runs just before the plugin is copied, so a Ringside started from there gets its copy back.
+    /// </summary>
+    internal static void ClearStoreCopies(IEnumerable<string> storeRoaming)
+    {
+        foreach (var roaming in storeRoaming)
+        {
+            var stale = Path.Combine(roaming, "Ringside", "claude-plugin");
+            if (Directory.Exists(stale)) Directory.Delete(stale, recursive: true);
         }
     }
 

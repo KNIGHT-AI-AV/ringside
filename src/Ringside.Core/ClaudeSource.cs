@@ -23,7 +23,7 @@ public sealed class ClaudeSource
         "From Claude Code's status line, which reports exact limits and reset times after each reply.";
 
     readonly string? _logOverride;
-    readonly string _feedPath;
+    readonly string[]? _feedOverride;
 
     sealed record Sample(DateTimeOffset T, string Org, double? FiveHour, double? Weekly);
     sealed record Reading(IReadOnlyList<LimitWindow> Windows, DateTimeOffset AsOf);
@@ -35,11 +35,16 @@ public sealed class ClaudeSource
 
     JsonDocument? _feed;
     DateTime _feedStamp;
+    string? _feedPath;
+    string[] _feeds = Array.Empty<string>();
+    DateTimeOffset _feedLookup = DateTimeOffset.MinValue;
 
-    public ClaudeSource(string? desktopLog = null, string? feedPath = null)
+    /// <param name="feeds">Where Claude Code's feed may be; by default Ringside's own folder and
+    /// the Store app's copies of it.</param>
+    public ClaudeSource(string? desktopLog = null, params string[] feeds)
     {
         _logOverride = desktopLog;
-        _feedPath = feedPath ?? Paths.StatusLineFeed;
+        _feedOverride = feeds.Length > 0 ? feeds : null;
     }
 
     public bool DesktopLogFound => ResolveLog(DateTimeOffset.Now) is not null;
@@ -47,7 +52,7 @@ public sealed class ClaudeSource
     public Snapshot Read(DateTimeOffset now)
     {
         RefreshLog(now);
-        RefreshFeed();
+        RefreshFeed(now);
         var desktop = FromLog(now);
         var feed = FromFeed(now);
 
@@ -99,24 +104,8 @@ public sealed class ClaudeSource
         yield return Path.Combine(roaming, "Claude", LogName);
 
         // Store (MSIX) installs keep their roaming data inside the package folder.
-        foreach (var d in PackageDirs())
-            yield return Path.Combine(d, "LocalCache", "Roaming", "Claude", LogName);
-    }
-
-    static List<string> PackageDirs()
-    {
-        string packages = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages");
-        try
-        {
-            return Directory.Exists(packages)
-                ? Directory.EnumerateDirectories(packages, "*Claude*").ToList()
-                : new List<string>();
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        {
-            return new List<string>();
-        }
+        foreach (var r in Paths.ClaudeStoreRoaming())
+            yield return Path.Combine(r, "Claude", LogName);
     }
 
     string? ResolveLog(DateTimeOffset now)
@@ -216,17 +205,40 @@ public sealed class ClaudeSource
 
     // ---- Claude Code's status line (written by the Ringside status line bridge) ----------------
 
-    void RefreshFeed()
+    // Claude Code run inside the Claude app from the Store saves the feed into the app's own copy
+    // of Ringside's folder whenever that copy exists (see Paths.ClaudeStoreRoaming), and Ringside
+    // started from Windows never sees it there. So look in every copy; the one written last is current.
+    static IEnumerable<string> FeedCandidates()
+    {
+        yield return Paths.StatusLineFeed;
+        if (Paths.Sandboxed) yield break;
+        foreach (var r in Paths.ClaudeStoreRoaming())
+            yield return Path.Combine(r, "Ringside", "claude-statusline.json");
+    }
+
+    string? ResolveFeed(DateTimeOffset now)
+    {
+        if (_feedOverride is null && now - _feedLookup >= TimeSpan.FromMinutes(5))
+        {
+            _feedLookup = now;
+            _feeds = FeedCandidates().ToArray();
+        }
+        return (_feedOverride ?? _feeds).Where(File.Exists).OrderByDescending(File.GetLastWriteTimeUtc).FirstOrDefault();
+    }
+
+    void RefreshFeed(DateTimeOffset now)
     {
         try
         {
-            if (!File.Exists(_feedPath)) { _feed?.Dispose(); _feed = null; return; }
-            var stamp = File.GetLastWriteTimeUtc(_feedPath);
-            if (stamp == _feedStamp && _feed is not null) return;
-            using var fs = SharedFile.Open(_feedPath);
+            var path = ResolveFeed(now);
+            if (path is null) { _feed?.Dispose(); _feed = null; return; }
+            var stamp = File.GetLastWriteTimeUtc(path);
+            if (path == _feedPath && stamp == _feedStamp && _feed is not null) return;
+            using var fs = SharedFile.Open(path);
             var doc = JsonDocument.Parse(fs);
             _feed?.Dispose();
             _feed = doc;
+            _feedPath = path;
             _feedStamp = stamp;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)

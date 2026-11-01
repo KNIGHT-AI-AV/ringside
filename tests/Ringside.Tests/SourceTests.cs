@@ -122,6 +122,62 @@ public sealed class SourceTests : IDisposable
     }
 
     [Fact]
+    public void Claude_feed_follows_whichever_copy_Claude_Code_wrote_last()
+    {
+        // 2026-11-01: Claude Code in the Store app's Code tab had been saving the feed into the app's
+        // private copy of AppData for two days, while Ringside read only its own folder and showed
+        // the Claude app's usage log instead, with its guessed reset time.
+        var now = DateTimeOffset.UtcNow;
+        var mine = Write("Ringside/claude-statusline.json", Feed(now.AddDays(-2), 43));
+        File.SetLastWriteTimeUtc(mine, now.UtcDateTime.AddDays(-2));
+        var store = Write("Store/Ringside/claude-statusline.json", Feed(now.AddMinutes(-1), 27));
+        File.SetLastWriteTimeUtc(store, now.UtcDateTime.AddMinutes(-1));
+
+        var src = new ClaudeSource(Path.Combine(_dir, "none.json"), mine, store);
+        var s = src.Read(now);
+        Assert.Equal(ClaudeSource.FeedText, s.Source);
+        Assert.Equal(27, s.Windows.Single(w => w.Label == "5-hour").Percent);
+        Assert.Equal(64, s.Windows.Single(w => w.Label == "Weekly").Percent);
+
+        // A later write to Ringside's own folder takes over again on the next poll.
+        File.WriteAllText(mine, Feed(now, 31));
+        File.SetLastWriteTimeUtc(mine, now.UtcDateTime);
+        Assert.Equal(31, src.Read(now).Windows.Single(w => w.Label == "5-hour").Percent);
+
+        static string Feed(DateTimeOffset at, double fiveHour) =>
+            "{\"updated\":" + at.ToUnixTimeSeconds() +
+            ",\"five_hour\":{\"used_percentage\":" + fiveHour + ",\"resets_at\":" + at.AddHours(3).ToUnixTimeSeconds() + "}" +
+            ",\"seven_day\":{\"used_percentage\":64,\"resets_at\":" + at.AddDays(3).ToUnixTimeSeconds() + "}}";
+    }
+
+    [Fact]
+    public void Store_app_copies_of_AppData_are_found_for_Claude_only()
+    {
+        var packages = Path.Combine(_dir, "Packages");
+        Directory.CreateDirectory(Path.Combine(packages, "Claude_pzs8sxrjxfjjc", "LocalCache", "Roaming"));
+        Directory.CreateDirectory(Path.Combine(packages, "OpenAI.Codex_2p2nqsd0c76g0", "LocalCache", "Roaming"));
+
+        var roaming = Assert.Single(Paths.ClaudeStoreRoaming(packages));
+        Assert.Equal(Path.Combine(packages, "Claude_pzs8sxrjxfjjc", "LocalCache", "Roaming"), roaming);
+        Assert.Empty(Paths.ClaudeStoreRoaming(Path.Combine(_dir, "missing")));
+    }
+
+    [Fact]
+    public void A_stale_plugin_in_the_Store_app_copy_is_cleared_and_nothing_else()
+    {
+        // Claude Code refuses a plugin whose module resolves outside the folder it was told to load,
+        // which is what a leftover copy in the Store app's private AppData makes it do.
+        var roaming = Path.Combine(_dir, "Roaming");
+        Write("Roaming/Ringside/claude-plugin/hooks/register.js", "// old");
+        var feed = Write("Roaming/Ringside/claude-statusline.json", "{}");
+
+        ClaudeCodeHook.ClearStoreCopies(new[] { roaming, Path.Combine(_dir, "missing") });
+
+        Assert.False(Directory.Exists(Path.Combine(roaming, "Ringside", "claude-plugin")));
+        Assert.True(File.Exists(feed));
+    }
+
+    [Fact]
     public void Codex_reads_the_newest_rate_limits_from_session_logs()
     {
         var now = DateTimeOffset.UtcNow;
