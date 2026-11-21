@@ -374,10 +374,16 @@ public sealed class Controller : IHost
         RebuildTray();
     }
 
+    // One menu for the tray's whole life. On macOS, Avalonia's native menu exporter refuses a
+    // different NativeMenu once the tray has one ("The menu being updated does not match",
+    // an unhandled ArgumentException that ends the process), so the items are refilled in place.
+    NativeMenu? _trayMenu;
+
     void RebuildTray()
     {
         if (_tray is null) return;
-        var menu = new NativeMenu();
+        var menu = _trayMenu ??= new NativeMenu();
+        menu.Items.Clear();
         NativeMenuItem Item(string text, Action click, bool? check = null, bool radio = false)
         {
             var i = new NativeMenuItem(text);
@@ -418,7 +424,7 @@ public sealed class Controller : IHost
         else if (_updates?.AvailableVersion is { } available) menu.Add(Item($"Get Ringside {available}", _updates.RestartNow));
         menu.Add(new NativeMenuItemSeparator());
         menu.Add(Item("Quit Ringside", Quit));
-        _tray.Menu = menu;
+        if (!ReferenceEquals(_tray.Menu, menu)) _tray.Menu = menu;
     }
 
     void UpdateTrayIcon()
